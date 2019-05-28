@@ -1,0 +1,95 @@
+plugins {
+    id 'com.android.library'
+    id 'digital.wup.android-maven-publish'
+    id "com.jfrog.bintray" version "1.8.4"
+}
+android {
+    buildToolsVersion "28.0.3"
+    compileSdkVersion 28
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+
+    }
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+
+
+    task sourcesJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        archiveClassifier = 'sources'
+    }
+
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        failOnError = false
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        from javadoc.destinationDir
+        archiveClassifier = 'javadoc'
+    }
+
+    publishing {
+        publications {
+            mavenAar(MavenPublication) {
+                from components.android
+                artifactId = 'covetools-android'
+                artifact sourcesJar
+                artifact javadocJar
+                pom {
+                    name = 'CoveTools'
+                    description = 'Various tools for use with LibGDX.'
+                    url = 'https://github.com/CypherCove/CoveTools'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    organization {
+                        name = 'Cypher Cove'
+                        url = 'www.cyphercove.com'
+                    }
+                    scm {
+                        connection = 'scm:git:git@github.com:cyphercove/covetools.git'
+                        developerConnection = 'scm:git:git@cyphercove/covetools.git'
+                        url = 'https://github.com/cyphercove/CoveTools/'
+                    }
+                }
+            }
+        }
+    }
+
+    bintray {
+        user = System.getenv('BINTRAY_USER')
+        key = System.getenv('BINTRAY_KEY')
+        pkg {
+            repo = 'maven'
+            name = 'CoveTools'
+            userOrg = 'cyphercove'
+            version {
+                name = rootProject.getVersion()
+                released  = new Date()
+            }
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/cyphercove/CoveTools/'
+        }
+        publications = ['mavenAar']
+    }
+}

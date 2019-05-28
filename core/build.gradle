@@ -1,0 +1,74 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id "com.jfrog.bintray" version "1.8.4"
+}
+
+sourceCompatibility = 1.7
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'covetools'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'CoveTools'
+                description = 'Various tools for use with LibGDX.'
+                url = 'https://github.com/CypherCove/CoveTools'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                organization {
+                    name = 'Cypher Cove'
+                    url = 'www.cyphercove.com'
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:cyphercove/covetools.git'
+                    developerConnection = 'scm:git:git@cyphercove/covetools.git'
+                    url = 'https://github.com/cyphercove/CoveTools/'
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    pkg {
+        repo = 'maven'
+        name = 'CoveTools'
+        userOrg = 'cyphercove'
+        version {
+            name = rootProject.getVersion()
+            released  = new Date()
+        }
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/cyphercove/CoveTools/'
+    }
+    publications = ['mavenJava']
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
