@@ -81,7 +81,7 @@ android {
         key = System.getenv('BINTRAY_KEY')
         pkg {
             repo = 'maven'
-            name = 'CoveTools'
+            name = 'CoveTools-Android'
             userOrg = 'cyphercove'
             version {
                 name = rootProject.getVersion()
