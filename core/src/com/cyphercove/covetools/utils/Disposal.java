@@ -34,7 +34,7 @@ import com.badlogic.gdx.utils.reflect.*;
 public class Disposal {
 
     /** Disposes all {@link Disposable} objects referenced by fields in the specified object and sets those field
-     * values to null.
+     * values to null. Beware using this on a class that is holding references to passed-in objects!
      * @param object The object containing references to Disposable objects.
      */
     public static void clear (Object object) {
@@ -51,6 +51,9 @@ public class Disposal {
         boolean checkGroups = skippedGroup != null && skippedGroup.length > 0;
         outer:
         for (Field field : fields){
+            com.badlogic.gdx.utils.reflect.Annotation skipAnnotation = field.getDeclaredAnnotation(Skip.class);
+            if (skipAnnotation != null)
+                continue;
             if (checkGroups) {
                 com.badlogic.gdx.utils.reflect.Annotation groupAnnotation = field.getDeclaredAnnotation(Group.class);
                 if (groupAnnotation != null) {
@@ -124,6 +127,15 @@ public class Disposal {
             }
         }
     }
+
+    /**
+     * Annotation for a field to always skip disposing in all cases. Useful for marking references
+     * to Disposable object references that were passed down to the constructor or in a setter.
+     */
+    @Documented
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Skip {}
 
     /**
      * Annotation for a field to assign it to a group for use with the {@link #clear(Object, int...)} method.

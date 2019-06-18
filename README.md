@@ -91,7 +91,7 @@ And cause the new value(s) to be loaded at runtime by calling:
     
 ## Disposal
 
-The Disposal class provides an easy way to clean up a class of Disposable objects, so you can easily avoid accidental leaks. Just make sure all your Disposable objects are referenced by member variables.
+The Disposal class provides an easy way to clean up a class of Disposable objects, so you can easily avoid accidental leaks. Just make sure all your Disposable objects are referenced by member variables. Use the `@Group(int)` and `@Skip` annotations for controlled disposal.
     
 ## Live Wallpapers
 
