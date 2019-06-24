@@ -21,7 +21,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -31,12 +34,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cyphercove.covetools.examples.AssignmentAssetManagerTest;
+import com.cyphercove.covetools.examples.TweenTest;
 
 public class ExampleRunner extends Game {
 
     public static final Array<Class<? extends Example>> examples = new Array<Class<? extends Example>>();
     static {
     	examples.add(AssignmentAssetManagerTest.class);
+    	examples.add(TweenTest.class);
     }
 
     SpriteBatch spriteBatch;
@@ -62,8 +67,16 @@ public class ExampleRunner extends Game {
             }
         };
         selectBox.setItems(examples);
+        selectBox.addListener(new InputListener(){
+            @Override
+            public boolean scrolled (InputEvent event, float x, float y, int amount) {
+                selectBox.setSelectedIndex((selectBox.getSelectedIndex() + Integer.signum(amount) + examples.size) % examples.size);
+                return true;
+            }
+        });
         table.add(selectBox).fillX().space(20).row();
         stage.addActor(table);
+        stage.setScrollFocus(selectBox);
         TextButton startButton = new TextButton("Start example", skin);
         startButton.addListener(new ChangeListener() {
             @Override

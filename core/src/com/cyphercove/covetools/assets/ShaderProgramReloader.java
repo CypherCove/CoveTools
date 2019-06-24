@@ -31,8 +31,9 @@ public class ShaderProgramReloader {
      * Error checking for correct usage of AssignmentAssetManager annotations is skipped, with the assumption that the
      * container has already been used for loading.
      *
-     * @param assetManager
-     * @param assetContainer
+     * @param assetManager The AssignmentAssetManager with shader programs to reload.
+     * @param assetContainer The asset container whose shader programs are to be reloaded.
+     * @return Whether ShaderPrograms were reloaded.
      */
     public static boolean reloadAllShadersGuarded (AssignmentAssetManager assetManager, Object assetContainer) {
 

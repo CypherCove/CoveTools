@@ -47,8 +47,8 @@ public interface LiveWallpaperListener extends ApplicationListener {
 
     /**
      * Called in response to an icon dropping on the home screen. Not all Android launcher apps are guaranteed to support this.
-     * @param x
-     * @param y
+     * @param x The x position of the icon drop location.
+     * @param y The y position of the icon drop location.
      */
     void onIconDropped (int x, int y);
 

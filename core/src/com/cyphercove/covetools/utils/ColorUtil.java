@@ -19,7 +19,10 @@ import com.badlogic.gdx.graphics.Color;
 
 public class ColorUtil {
 
+    private static final float[] hsv = new float[3];
+
     /**
+     * @param color The color to determine the hue of.
      * @return The HSV-model hue of the RGB components, as a value between 0 and 1, divided evenly from red to green to blue and back to
      * red. If the color is desaturated, the hue is 0.
      */
@@ -48,6 +51,7 @@ public class ColorUtil {
     }
 
     /**
+     * @param color The color to determine the saturation of.
      * @return The HSV-model saturation of the RGB components, as a value between 0 and 1, where 1 is fully saturated.
      */
     public static float getSaturation(Color color) {
@@ -60,6 +64,7 @@ public class ColorUtil {
     }
 
     /**
+     * @param color The color to determine the value of.
      * @return The HSV-model value of the RGB components, as a value between 0 and 1, where 1 is fully bright.
      */
     public static float getValue(Color color) {
@@ -67,169 +72,92 @@ public class ColorUtil {
     }
 
     /**
-     * Modifies the color to hold hue, saturation, and value in the RGB components. This is more efficient than calling
-     * {@link #getHue(Color)}, {@link #getSaturation(Color)}, and {@link #getValue(Color)} separately.
-     * <p>
-     * This is private because none of the other methods are intended to work with a color that is storing data this way.
-     * It is used internally as a convenient way to avoid allocating arrays.
-     *
-     * @param color The RGB color to transform
-     * @return The modified color.
-     */
-    private static Color toHSV(Color color) {
-        float r = color.r, g = color.g, b = color.b;
-        float max = Math.max(b, Math.max(r, g));
-        float min = Math.min(b, Math.min(r, g));
-        if (max == min) {
-            color.r = 0;
-        } else {
-            float dem = max - min;
-            float hue;
-            if (r == max) {
-                hue = (g - b / dem) % 6f;
-            } else if (g == max) {
-                hue = 2f + (b - r) / dem;
-            } else {
-                hue = 4f + (r - g) / dem;
-            }
-            if (hue < 0) {
-                hue += 6f;
-            }
-            hue /= 6f;
-            color.r = hue;
-        }
-        if (max == min)
-            color.g = 0;
-        else
-            color.g = (max - min) / max;
-        color.b = max;
-        return color;
-    }
-
-    public static Color fromHSVToRGB(Color color) {
-        return setFromHSV(color, color.r, color.g, color.b);
-    }
-
-    /**
-     * Sets the colors' R, G, and B values based on the given hue, saturation, and value.
-     *
-     * @param color      The color to modify
-     * @param hue        The HSV-model hue of the RGB components, as a value between 0 and 1, divided evenly from red to
-     *                   green to blue and back to red. If the color is desaturated, the hue is 0.
-     * @param saturation The HSV-model saturation of the RGB components, as a value between 0 and 1, where 1 is fully saturated.
-     * @param value      The HSV-model value of the RGB components, as a value between 0 and 1, where 1 is fully bright.
-     * @return The modified input color.
-     */
-    public static Color setFromHSV(Color color, float hue, float saturation, float value) {
-        float chroma = saturation * value;
-        float huePrime = hue * 6f;
-        float X = chroma * (1 - Math.abs(huePrime % 2 - 1));
-        float r, g, b;
-        if (huePrime < 1) {
-            r = chroma;
-            g = X;
-            b = 0;
-        } else if (huePrime < 2) {
-            r = X;
-            g = chroma;
-            b = 0;
-        } else if (huePrime < 3) {
-            r = 0;
-            g = chroma;
-            b = X;
-        } else if (huePrime < 4) {
-            r = 0;
-            g = X;
-            b = chroma;
-        } else if (huePrime < 5) {
-            r = X;
-            g = 0;
-            b = chroma;
-        } else if (huePrime < 6) {
-            r = chroma;
-            g = 0;
-            b = X;
-        } else {
-            r = 0;
-            g = 0;
-            b = 0;
-        }
-
-        float m = value - chroma;
-        color.r = r + m;
-        color.g = g + m;
-        color.b = b + m;
-
-        return color;
-    }
-
-    /**
-     * Shifts the hue of the color by the given amount, normalized across colors from 0 to 1.
-     *
+     * Shifts the hue of the color by the given amount, normalized across colors from 0 to 360.
+     * @param color The source color to modify.
+     * @param amount How much to shift The hue of the resulting color.
      * @return The modified input color.
      */
     public static Color shiftHue(Color color, float amount) {
-        toHSV(color);
-        return setFromHSV(color, (color.r + amount) % 1f, color.g, color.b);
+        color.toHsv(hsv);
+        hsv[0] = (hsv[0] + amount) % 360f;
+        return color.fromHsv(hsv);
     }
 
     /**
-     * Sets the hue of the color to the given value, normalized across colors from 0 to 1.
-     *
+     * Sets the hue of the color to the given value, normalized across colors from 0 to 360 and leaving
+     * saturation and value unchanged.
+     * @param color The source color to modify.
+     * @param hue The hue of the resulting color.
      * @return The modified input color.
      */
     public static Color setHue(Color color, float hue) {
-        toHSV(color);
-        return setFromHSV(color, hue % 1f, color.g, color.b);
+        color.toHsv(hsv);
+        hsv[0] = hue;
+        return color.fromHsv(hsv);
     }
 
     /**
-     * Scales the saturation of the color.
-     *
+     * Scales the saturation of the color (of the HSV model), leaving hue and value constant.
+     * @param color The source color to modify.
+     * @param scale How much to multiply the saturation of the color by.
      * @return The modified input color.
      */
     public static Color scaleSaturation(Color color, float scale) {
-        toHSV(color);
-        return setFromHSV(color, color.r, Math.min(color.g * scale, 1f), color.b);
+        color.toHsv(hsv);
+        hsv[1] = Math.min(1, scale * hsv[1]);
+        return color.fromHsv(hsv);
     }
 
     /**
-     * Sets the saturation of the color, leaving hue and value constant.
-     *
+     * Sets the saturation of the color (of the HSV model), leaving hue and value constant.
+     * @param color The source color to modify.
+     * @param saturation The saturation of the resulting color, from 0 to 1.
      * @return The modified input color.
      */
     public static Color setSaturation(Color color, float saturation) {
-        toHSV(color);
-        return setFromHSV(color, color.r, saturation, color.b);
+        color.toHsv(hsv);
+        hsv[1] = saturation;
+        return color.fromHsv(hsv);
     }
 
     /**
-     * Scales the value of the color.
-     *
+     * Scales the value (of the HSV model) of the color.
+     * @param color The source color to modify.
+     * @param scale How much to multiply the value of the color by.
      * @return The modified input color.
      */
     public static Color scaleValue(Color color, float scale) {
-        toHSV(color);
-        return setFromHSV(color, color.r, color.g, Math.min(color.b * scale, 1f));
+        color.toHsv(hsv);
+        hsv[2] = Math.min(1, scale * hsv[2]);
+        return color.fromHsv(hsv);
     }
 
     /**
-     * Sets the value of the color, leaving the hue and saturation constant.
-     *
+     * Sets the value of the color (of the HSV model), leaving the hue and saturation constant.
+     * @param color The source color to modify.
+     * @param value The value of the resulting color, from 0 to 1.
      * @return The modified input color.
      */
     public static Color setValue(Color color, float value) {
-        toHSV(color);
-        return setFromHSV(color, color.r, color.g, value);
+        color.toHsv(hsv);
+        hsv[2] = value;
+        return color.fromHsv(hsv);
     }
 
     public static final Color TMP = new Color();
-    /** Interpolates between two ARGB8888 colors using the RGB model, and then adjusting the final value by lerped saturation. */
-    public static Color blendRGBWithSaturation(Color one, Color two, float amount){
+    /** Interpolates between two colors using the RGB model, and then adjusts the saturation of the
+     * result to the interpolated saturation of the source colors.
+     * @param result The color to place the result in. Can be one of the inputs
+     * @param one The beginning color for the blend.
+     * @param two The end color for the blend.
+     * @param amount The progress of the blend, from 0 to 1.
+     * @return The result*/
+    public static Color blendRGBWithSaturation(Color result, Color one, Color two, float amount){
         TMP.set(one).lerp(two, amount);
+        result.a = TMP.a;
         float s1 = getSaturation(one);
-        float s2 = getSaturation(two);
-        toHSV(TMP);
-        return setFromHSV(TMP, TMP.r, s1 + amount * (s2 - s1), TMP.b);
+        setSaturation(TMP, s1 + amount * (getSaturation(two) - s1));
+        result.set(TMP);
+        return result;
     }
 }

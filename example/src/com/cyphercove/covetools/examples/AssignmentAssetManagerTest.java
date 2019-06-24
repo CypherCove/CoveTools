@@ -39,6 +39,7 @@ import com.cyphercove.covetools.assets.AssignmentAssetManager;
 import com.cyphercove.covetools.assets.Asset;
 import com.cyphercove.covetools.assets.Assets;
 import com.cyphercove.covetools.assets.AssetContainer;
+import com.cyphercove.covetools.utils.Disposal;
 
 public class AssignmentAssetManagerTest extends Example {
 
@@ -191,7 +192,6 @@ public class AssignmentAssetManagerTest extends Example {
 
     @Override
     public void dispose() {
-    	batch.dispose();
-    	assetManager.dispose();
+    	Disposal.clear(this);
     }
 }

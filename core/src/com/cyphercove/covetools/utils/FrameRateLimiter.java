@@ -19,7 +19,8 @@ public class FrameRateLimiter {
 
     private static long lastTime;
 
-    /** Call at the end of the {@code render()} method to impose a limit on the frame rate by sleeping the thread. */
+    /** Call at the end of the {@code render()} method to impose a limit on the frame rate by sleeping the thread.
+     * @param maxFPS The target maximum frame rate.*/
     public static void limit (int maxFPS){
         if (maxFPS > 0){
             int deltaMillisMin = 1000 / maxFPS;
