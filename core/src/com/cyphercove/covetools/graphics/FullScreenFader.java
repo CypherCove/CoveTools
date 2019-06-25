@@ -40,7 +40,7 @@ import com.badlogic.gdx.utils.Disposable;
  * */
 public class FullScreenFader implements Disposable{
 
-    private Mesh mesh;
+    private FullScreenQuad quad;
     private ShaderProgram shader;
 
     int u_color;
@@ -49,23 +49,16 @@ public class FullScreenFader implements Disposable{
     private float fadeTime;
     private float elapsed;
 
-    private final float[] vertices ={
-            -1,-1,0,
-            1,-1,0,
-            1,1,0,
-            -1,1,0
-    };
-
     private final Color color = new Color(0, 0, 0, 1f);
 
     public FullScreenFader(float delay, float fadeTime, Color initialColor){
         this.delay = delay;
         this.fadeTime = fadeTime;
 
-        mesh=new Mesh(true, 4, 0,
-                new VertexAttribute(Usage.Position, 3,"a_position"));
+        quad = new FullScreenQuad();
+        quad.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        quad.setBlending(true);
 
-        mesh.setVertices(vertices);
         this.color.set(initialColor);
         color.a = 1f;
     }
@@ -89,7 +82,7 @@ public class FullScreenFader implements Disposable{
                 "  gl_FragColor =  u_color;\n" +
                 "}                                            \n";
 
-        shader=new ShaderProgram(vertexShaderSrc,fragmentShaderSrc);
+        shader = new ShaderProgram(vertexShaderSrc, fragmentShaderSrc);
 
         u_color = shader.getUniformLocation("u_color");
     }
@@ -102,18 +95,13 @@ public class FullScreenFader implements Disposable{
             delay -= deltaTime;
         }
 
-        GL20 gl = Gdx.gl20;
-        gl.glEnable(GL20.GL_BLEND);
-        gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
         color.a = delay > 0 ? 1f : 1f - Interpolation.fade.apply( elapsed / fadeTime);
 
         if (shader==null)
             createShader();
         shader.begin();
         shader.setUniformf(u_color, color);
-        mesh.render(shader, GL20.GL_TRIANGLE_FAN);
-
+        quad.render(shader);
         shader.end();
 
         if (delay <= 0)
@@ -123,6 +111,7 @@ public class FullScreenFader implements Disposable{
     public void dispose(){
         if (shader!=null)
             shader.dispose();
+        quad.dispose();
     }
 
 }
