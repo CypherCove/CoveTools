@@ -22,6 +22,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.*;
+import com.cyphercove.covetools.assets.Asset;
 
 /**
  * Convenience methods for disposing and nulling fields for {@link Disposable} objects.
@@ -34,15 +35,17 @@ import com.badlogic.gdx.utils.reflect.*;
 public class Disposal {
 
     /** Disposes all {@link Disposable} objects referenced by fields in the specified object and sets those field
-     * values to null. Beware using this on a class that is holding references to passed-in objects!
+     * values to null. Beware using this on a class that is holding references to passed-in objects! Any
+     * Disposables annotated with {@link Skip} or {@link Asset} are not disposed.
      * @param object The object containing references to Disposable objects.
      */
     public static void clear (Object object) {
         clearExcept(object);
     }
 
-    /** Disposes all {@link Disposable} objects referenced by fields in the specified object and sets those field
-     * values to null, except those specified.
+    /** Disposes all {@link Disposable} objects referenced by fields in the specified object and sets
+     * those field values to null, except those specified. Any Disposables annotated with {@link Skip}
+     * or {@link Asset} are not disposed.
      * @param object The object containing references to Disposable objects.
      * @param skippedGroup Fields annotated with {@link Group} with matching numbers will not be disposed.
      */
@@ -53,6 +56,9 @@ public class Disposal {
         for (Field field : fields){
             com.badlogic.gdx.utils.reflect.Annotation skipAnnotation = field.getDeclaredAnnotation(Skip.class);
             if (skipAnnotation != null)
+                continue;
+            com.badlogic.gdx.utils.reflect.Annotation assetAnnotation = field.getDeclaredAnnotation(Asset.class);
+            if (assetAnnotation != null)
                 continue;
             if (checkGroups) {
                 com.badlogic.gdx.utils.reflect.Annotation groupAnnotation = field.getDeclaredAnnotation(Group.class);
@@ -68,7 +74,8 @@ public class Disposal {
     }
 
     /** Disposes all {@link Disposable} objects referenced by fields in the specified object and sets those field
-     * values to null, if they are tagged with a given group number.
+     * values to null, if they are tagged with a given group number. If any field is tagged both with
+     * {@link Group} and either {@link Skip} or {@link Asset}, a GdxRuntimeException will be thrown.
      * @param object The object containing references to Disposable objects.
      * @param groupNumber The {@link Group} value(s) of fields that will be disposed.
      */
@@ -81,6 +88,10 @@ public class Disposal {
             com.badlogic.gdx.utils.reflect.Annotation groupAnnotation = field.getDeclaredAnnotation(Group.class);
             if (groupAnnotation == null)
                 continue;
+            com.badlogic.gdx.utils.reflect.Annotation skipAnnotation = field.getDeclaredAnnotation(Skip.class);
+            com.badlogic.gdx.utils.reflect.Annotation assetAnnotation = field.getDeclaredAnnotation(Asset.class);
+            if (skipAnnotation != null || assetAnnotation != null)
+                throw new GdxRuntimeException("Cannot annotate a field as Group if it is also annotated with Skip or Asset.");
             int fieldGroup = groupAnnotation.getAnnotation(Group.class).value();
             for (int i : groupNumber){
                 if (fieldGroup == i){
