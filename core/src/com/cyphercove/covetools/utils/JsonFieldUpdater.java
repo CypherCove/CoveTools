@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
+import java.io.StringWriter;
 import java.security.AccessControlException;
 import java.util.Locale;
 
@@ -259,6 +260,63 @@ public class JsonFieldUpdater {
         else
             Gdx.app.error(TAG, message, error);
 
+    }
+
+    /** Generates a json String that is formatted for use as a json file that can be used with JsonFieldUpdater.
+     * Useful for creating an initial template of a class object. Only non-transient static fields are populated.
+     * @param type The class to read.
+     * @returnA json representation of the class's static fields
+     */
+    public static String toJson (Class type){
+        Field[] fields = ClassReflection.getDeclaredFields(type);
+        JsonWriter writer = new JsonWriter(new StringWriter());
+        writer.setOutputType(JsonWriter.OutputType.javascript);
+        Json json = new Json();
+        json.setWriter(writer);
+        json.writeObjectStart();
+        json.writeObjectStart(type.getSimpleName());
+        for (Field field : fields){
+            if (field.isTransient() || !field.isStatic())
+                continue;
+            try {
+                json.writeValue(field.getName(), field.get(type));
+            } catch (ReflectionException e){
+                Gdx.app.error("Settings", "Failed to write field " + field.getName());
+            }
+        }
+        json.writeObjectEnd();
+        json.writeObjectEnd();
+        StreamUtils.closeQuietly(writer);
+        return json.prettyPrint(writer.getWriter().toString());
+    }
+
+    /** Generates a json String that is formatted for use as a json file that can be used with JsonFieldUpdater.
+     * Useful for creating an initial template of an object. Only non-transient non-static fields are populated.
+     * @param object The object to read.
+     * @returnA json representation of the object's member fields
+     */
+    public static String toJson (Object object){
+        Class type = object.getClass();
+        Field[] fields = ClassReflection.getDeclaredFields(type);
+        JsonWriter writer = new JsonWriter(new StringWriter());
+        writer.setOutputType(JsonWriter.OutputType.javascript);
+        Json json = new Json();
+        json.setWriter(writer);
+        json.writeObjectStart();
+        json.writeObjectStart(type.getSimpleName());
+        for (Field field : fields){
+            if (field.isTransient() || field.isStatic())
+                continue;
+            try {
+                json.writeValue(field.getName(), field.get(object));
+            } catch (ReflectionException e){
+                Gdx.app.error("Settings", "Failed to write field " + field.getName());
+            }
+        }
+        json.writeObjectEnd();
+        json.writeObjectEnd();
+        StreamUtils.closeQuietly(writer);
+        return json.prettyPrint(writer.getWriter().toString());
     }
 
 }
