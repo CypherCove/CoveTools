@@ -265,7 +265,7 @@ public class JsonFieldUpdater {
     /** Generates a json String that is formatted for use as a json file that can be used with JsonFieldUpdater.
      * Useful for creating an initial template of a class object. Only non-transient static fields are populated.
      * @param type The class to read.
-     * @returnA json representation of the class's static fields
+     * @return A json representation of the class's static fields
      */
     public static String toJson (Class type){
         Field[] fields = ClassReflection.getDeclaredFields(type);
@@ -293,7 +293,7 @@ public class JsonFieldUpdater {
     /** Generates a json String that is formatted for use as a json file that can be used with JsonFieldUpdater.
      * Useful for creating an initial template of an object. Only non-transient non-static fields are populated.
      * @param object The object to read.
-     * @returnA json representation of the object's member fields
+     * @return A json representation of the object's member fields
      */
     public static String toJson (Object object){
         Class type = object.getClass();
