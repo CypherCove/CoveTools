@@ -310,16 +310,18 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
         timeSinceLastTap += Gdx.graphics.getDeltaTime();
         Input input = Gdx.input;
 
+        if (input.isTouched(1)) { // Multi touches immediately cancel multi tap.
+            tapCount = 0;
+            return;
+        }
+
         if (input.justTouched()) {
-            if (tapCount == 0) {
+            if (tapCount == 0 ||
+                    timeSinceLastTap > multiTapMaxInterval) { // reset if past time interval
                 timeSinceLastTap = 0;
                 firstTapX = input.getX();
                 firstTapY = input.getY();
                 tapCount = 1;
-            } else if (input.isTouched(1) // Multi touches immediately cancel multi tap.
-                    || timeSinceLastTap > multiTapMaxInterval) { // Cancel if past time interval.
-                tapCount = 0;
-                return;
             } else {
                 float tapThreshold = tapThresholdDIP * density;
                 float dx = firstTapX - input.getX();
@@ -342,9 +344,8 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
             float tapThreshold = tapThresholdDIP * density;
             float dx = firstTapX - input.getX(0);
             float dy = firstTapY - input.getY(0);
-            if (dx * dx + dy * dy > tapThreshold * tapThreshold) { // swiped to outside threshold radius
+            if (dx * dx + dy * dy > tapThreshold * tapThreshold) { // swiped to outside threshold radius...cancel
                 tapCount = 0;
-                return;
             }
         }
     }
