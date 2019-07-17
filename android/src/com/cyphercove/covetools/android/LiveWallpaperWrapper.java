@@ -157,6 +157,11 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
         offsetMaxVelocity = maxVelocity;
     }
 
+    /** @param tapThresholdDIP The range within which taps must lie to be counted as multi-taps. */
+    public void setTapThresholdDIP (float tapThresholdDIP) {
+        this.tapThresholdDIP = tapThresholdDIP;
+    }
+
     @Override
     public void render() {
 
@@ -320,7 +325,10 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
                 float dx = firstTapX - input.getX();
                 float dy = firstTapY - input.getY();
                 if (dx * dx + dy * dy > tapThreshold * tapThreshold) { // outside threshold radius
-                    tapCount = 0;
+                    timeSinceLastTap = 0;
+                    firstTapX = input.getX();
+                    firstTapY = input.getY();
+                    tapCount = 1;
                     return;
                 }
                 timeSinceLastTap = 0;
