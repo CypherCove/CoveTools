@@ -119,3 +119,11 @@ You can also easily use your wallpaper as a Daydream, aka screensaver by wrappin
     initialize(new DaydreamWrapper(new MyLiveWallpaperListener(), myEventListener), config);
     
 A daydream shouldn't be running while a user is changing settings, so there is no option to pass a SharedPreferences instance.
+
+## Anisotropy
+
+LibGDX doesn't natively provide convenience methods for setting Texture anisotropic filtering. Use the Anisotropy class like this:
+
+    Anisotropy.setTextureAnisotropy(myTexture, 16);
+    
+The highest anisotropic filtering level available up to the value passed will be applied to the texture. The device might not support as high a value as was passed, or not support anisotropic filtering at all. The above method returns the actual value that was set.

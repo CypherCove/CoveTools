@@ -30,11 +30,11 @@ public class Anisotropy {
 
     /**
      * Applies the given anisotropic level to the texture. Returns the anisotropy value that was applied,
-     * based on device's maximum capability. Note that this call binds the texture.
+     * based on device's maximum capability. Note that this call binds the texture if the device supports anisotropy.
      *
      * @param texture    The texture to apply anisotropy to.
      * @param anisotropy The anisotropic level to apply. (Will be reduced if device capability is less.
-     * @return The anisotropic level that was applied, or -1.0 if anisotropy is not supported by the device.
+     * @return The anisotropic level that was applied, or `1.0f` if anisotropy is not supported by the device.
      */
     public static float setTextureAnisotropy (Texture texture, float anisotropy) {
         if (!checkComplete)
@@ -45,7 +45,7 @@ public class Anisotropy {
             Gdx.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, valueApplied);
             return valueApplied;
         } else {
-            return -1f;
+            return 1f;
         }
     }
 
