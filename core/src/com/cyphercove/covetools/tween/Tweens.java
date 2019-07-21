@@ -64,18 +64,26 @@ public class Tweens {
 
     static public ScalarTween to (Scalar target, float endX, float duration, Ease ease){
         return tween(ScalarTween.class)
-            .target(target)
-            .end(endX)
-            .duration(duration)
-            .ease(ease);
+                .target(target)
+                .end(endX)
+                .duration(duration)
+                .ease(ease);
+    }
+
+    static public ScalarTween to (Scalar target, Scalar end, float duration, Ease ease){
+        return to(target, end.x, duration, ease);
     }
 
     static public Vector2Tween to (Vector2 target, float endX, float endY, float duration, Ease ease){
         return tween(Vector2Tween.class)
-            .target(target)
-            .end(endX, endY)
-            .duration(duration)
-            .ease(ease);
+                .target(target)
+                .end(endX, endY)
+                .duration(duration)
+                .ease(ease);
+    }
+
+    static public Vector2Tween to (Vector2 target, Vector2 end, float duration, Ease ease){
+        return to(target, end.x, end.y, duration, ease);
     }
 
     static public Vector3Tween to (Vector3 target, float endX, float endY, float endZ, float duration, Ease ease){
@@ -84,6 +92,10 @@ public class Tweens {
             .end(endX, endY, endZ)
             .duration(duration)
             .ease(ease);
+    }
+
+    static public Vector3Tween to (Vector3 target, Vector3 end, float duration, Ease ease){
+        return to(target, end.x, end.y, end.z, duration, ease);
     }
 
     static public ColorTween to (Color target, float endR, float endG, float endB, float duration, Ease ease){

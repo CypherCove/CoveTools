@@ -45,6 +45,12 @@ public class Vector2Tween extends Tween<Vector2, Vector2Tween> {
         return this;
     }
 
+    public Vector2Tween end (Vector2 end){
+        setEndValue(0, end.x);
+        setEndValue(1, end.y);
+        return this;
+    }
+
     public float getEndX (){
         return getEndValue(0);
     }

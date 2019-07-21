@@ -35,6 +35,10 @@ public class ScalarTween extends Tween<Scalar, ScalarTween> {
         setEndValue(0, end);
         return this;
     }
+    public ScalarTween end (Scalar end){
+        setEndValue(0, end.x);
+        return this;
+    }
 
     public float getEnd (){
         return getEndValue(0);

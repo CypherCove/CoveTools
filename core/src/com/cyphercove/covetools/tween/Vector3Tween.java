@@ -20,7 +20,7 @@ import com.badlogic.gdx.math.Vector3;
 public class Vector3Tween extends Tween<Vector3, Vector3Tween> {
 
     public Vector3Tween (){
-        super(2);
+        super(3);
     }
 
     protected void begin () {
@@ -47,6 +47,13 @@ public class Vector3Tween extends Tween<Vector3, Vector3Tween> {
         setEndValue(0, endX);
         setEndValue(1, endY);
         setEndValue(2, endZ);
+        return this;
+    }
+
+    public Vector3Tween end (Vector3 end){
+        setEndValue(0, end.x);
+        setEndValue(1, end.y);
+        setEndValue(2, end.z);
         return this;
     }
 
