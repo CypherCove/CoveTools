@@ -26,7 +26,26 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-public class GaussianBlur implements Disposable{
+public class GaussianBlur implements Disposable {
+
+    class BufferSet {
+        int width, height;
+        FrameBuffer initialTarget, pass1, pass2;
+
+        public BufferSet (int width, int height){
+            this.width = width;
+            this.height = height;
+            initialTarget = getLinearFrameBuffer(width, height, hasDepth);
+            pass1 = getLinearFrameBuffer(width, height, false);
+            pass2 = getLinearFrameBuffer(width, height, false);
+        }
+
+        public void dispose (){
+            initialTarget.dispose();
+            pass1.dispose();
+            pass2.dispose();
+        }
+    }
 
     public static final int MAX_RADIUS = 8; //Increasing it beyond 8 would require extra vec4s for offsets and weights
     private int maxRadius;
@@ -35,79 +54,69 @@ public class GaussianBlur implements Disposable{
     private boolean blendingEnabled = false;
     private int blendSrcFunc = GL20.GL_SRC_ALPHA;
     private int blendDstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-    private Color clearColor = new Color(0,0,0,1);
+    private Color clearColor = new Color(0, 0, 0, 1);
     private SpriteBatch spriteBatch;
     private ShaderProgram blurPassShaderProgram;
-    private FrameBuffer fboInitialTargetStandard;
-    private FrameBuffer fboInitialTargetInverted;
+    private BufferSet currentBufferSet;
+    private BufferSet heldBufferSet;
     private boolean keepInverseTarget;
-    private boolean useInverseTarget;
-    private FrameBuffer fboPass1;
-    private FrameBuffer fboPass2;
     private float horizontalOnePixelSize;
     private float verticalOnePixelSize;
-    private final float[] tmpArray = new float[MAX_RADIUS+1];
-    private float[] offsets = new float[4];
+    private final float[] tmpArray = new float[MAX_RADIUS + 1];
+    private float[] offsets;
     private float weightAtCenter;
-    private float[] weights = new float[4];
+    private float[] weights;
     private float sigma = -1;
-    private int currentWidth = -1;
-    private int currentHeight = -1;
 
-    private Matrix4 fboToSceneProjectionMatrix;
-    private Matrix4 fboToSceneProjectionMatrixLeft;
-    private Matrix4 fboToSceneProjectionMatrixRight;
+    private final Matrix4 fboToSceneProjectionMatrix = new Matrix4();
 
     GaussianBlurShaderProvider shaderProvider;
 
-    private boolean hasDepth = true;
+    private final boolean hasDepth;
     private boolean depthTestingToScene = true;
 
     public interface CustomShaderPreparer {
-        void applyCustomShaderParameters(SpriteBatch spriteBatch, boolean flipped);
+        void applyCustomShaderParameters (SpriteBatch spriteBatch, boolean flipped);
     }
 
     private CustomShaderPreparer customShaderPreparer;
 
     /**
-     *
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
-     *                  radius is set to this value. The actual maximum blur radius will be rounded
-     *                  up to the nearest even integer due to internal workings.
+     *                            radius is set to this value. The actual maximum blur radius will be rounded
+     *                            up to the nearest even integer due to internal workings.
      * @param hasDepth
-     * @param keepInverseTarget Whether, when resizing, to create two target frame buffers so a screen
-     *                          rotation can be done quickly without a pause.
+     * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
+     *                            rotation can be done quickly without a pause.
      */
-    public GaussianBlur(float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget){
+    public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget) {
         this(initialAndMaxRadius, hasDepth, keepInverseTarget, new GaussianBlurShaderProvider());
     }
 
     /**
-     *
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
-     *                  radius is set to this value. The actual maximum blur radius will be rounded
-     *                  up to the nearest even integer due to internal workings.
+     *                            radius is set to this value. The actual maximum blur radius will be rounded
+     *                            up to the nearest even integer due to internal workings.
      * @param hasDepth
-     * @param keepInverseTarget Whether, when resizing, to create two target frame buffers so a screen
-     *                          rotation can be done quickly without a pause.
+     * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
+     *                            rotation can be done quickly without a pause.
      */
-    public GaussianBlur(float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget,
-                        GaussianBlurShaderProvider shaderProvider){
-        if (initialAndMaxRadius < 0 || initialAndMaxRadius > MAX_RADIUS){
+    public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget,
+                         GaussianBlurShaderProvider shaderProvider) {
+        if (initialAndMaxRadius < 0 || initialAndMaxRadius > MAX_RADIUS) {
             throw new GdxRuntimeException(
                     "Radius must be between 0 and " + MAX_RADIUS + " inclusive.");
         }
 
         this.hasDepth = hasDepth;
         this.keepInverseTarget = keepInverseTarget;
-        this.useInverseTarget = false;
         spriteBatch = new SpriteBatch(1);
 
-        this.maxRadius = (int)Math.ceil(initialAndMaxRadius);
+        this.maxRadius = (int) Math.ceil(initialAndMaxRadius);
         if (this.maxRadius % 2 != 0)
             this.maxRadius++; //round up to nearest even integer.
-        offsets = new float[this.maxRadius /2];
-        weights = new float[this.maxRadius /2];
+        offsets = new float[this.maxRadius / 2];
+        weights = new float[this.maxRadius / 2];
         setRadius(initialAndMaxRadius);
 
         setTextureToSceneDepth(0.9999999f);//By default draw behind everything.
@@ -120,69 +129,65 @@ public class GaussianBlur implements Disposable{
     }
 
     @Override
-    public void dispose() {
-        if (fboInitialTargetStandard !=null) fboInitialTargetStandard.dispose();
-        if (fboInitialTargetInverted !=null) fboInitialTargetInverted.dispose();
-        if (fboPass1!=null) fboPass1.dispose();
-        if (fboPass2!=null) fboPass2.dispose();
+    public void dispose () {
+        if (currentBufferSet != null) currentBufferSet.dispose();
+        if (heldBufferSet != null) heldBufferSet.dispose();
         spriteBatch.dispose();
         shaderProvider.disposeShader(blurPassShaderProgram);
     }
 
     /**
-     * Must be called at least once. The texture size is matched with the larger of the screen width
-     * and height.
+     * Must be called at least once to set up the surfaces for generating the blur. The texture size
+     * is the longer dimension of the blur buffers and its aspect ratio will match the screen's.
+     *
+     * @param textureSize  The size of the texture in the long dimension.
+     * @param screenWidth  The width of the screen in pixels.
+     * @param screenHeight The height of the screen in pixels.
      */
-    public void resize(int textureSize, int screenWidth, int screenHeight){
-        if (screenWidth > screenHeight){
-            resize(textureSize, (int)(textureSize/(float)screenWidth*(float)screenHeight));
+    public void resize (int textureSize, int screenWidth, int screenHeight) {
+        if (screenWidth > screenHeight) {
+            resize(textureSize, (int) (textureSize / (float) screenWidth * (float) screenHeight));
         } else {
-            resize((int)(textureSize/(float)screenHeight*(float)screenWidth), textureSize);
+            resize((int) (textureSize / (float) screenHeight * (float) screenWidth), textureSize);
         }
     }
 
     /**
-     * Must be called at least once.
+     * Must be called at least once to set up the surfaces for generating the blur.
+     *
+     * @param textureWidth  The width of the texture in pixels.
+     * @param textureHeight The height of the texture in pixels.
      */
-    public void resize(int textureWidth, int textureHeight){
-        if (fboInitialTargetStandard != null && currentWidth==textureWidth && currentHeight==textureHeight)
+    public void resize (int textureWidth, int textureHeight) {
+        if (currentBufferSet != null && currentBufferSet.width == textureWidth && currentBufferSet.height == textureHeight)
             return;
 
-        if (keepInverseTarget && currentWidth==textureHeight && currentHeight==textureWidth){
-            useInverseTarget = !useInverseTarget;
-            currentWidth = textureWidth;
-            currentHeight = textureHeight;
+        if (heldBufferSet != null && heldBufferSet.width == textureWidth && heldBufferSet.height == textureHeight){
+            BufferSet oldCurrent = currentBufferSet;
+            currentBufferSet = heldBufferSet;
+            heldBufferSet = oldCurrent;
             return;
         }
 
-        currentWidth = textureWidth;
-        currentHeight = textureHeight;
+        if (heldBufferSet != null){
+            heldBufferSet.dispose();
+            heldBufferSet = null;
+        }
 
-        if (fboInitialTargetStandard != null)
-            fboInitialTargetStandard.dispose();
-        fboInitialTargetStandard = getLinearFrameBuffer(textureWidth, textureHeight, hasDepth);
-
-        if (fboInitialTargetInverted != null)
-            fboInitialTargetInverted.dispose();
         if (keepInverseTarget){
-            fboInitialTargetInverted = getLinearFrameBuffer(textureHeight, textureWidth, hasDepth);
+            heldBufferSet = currentBufferSet;
+        } else {
+            currentBufferSet.dispose();
         }
 
-        if (maxRadius > 0) {
-            if (fboPass1 != null)
-                fboPass1.dispose();
-            fboPass1 = getLinearFrameBuffer(textureWidth, textureHeight, false);
-            if (fboPass2 != null)
-                fboPass2.dispose();
-            fboPass2 = getLinearFrameBuffer(textureWidth, textureHeight, false);
-
-            verticalOnePixelSize = 1f / (float) textureHeight;
-            horizontalOnePixelSize = 1f / (float) textureWidth;
-        }
+        currentBufferSet = new BufferSet(textureWidth, textureHeight);
+        verticalOnePixelSize = 1f / (float) textureHeight;
+        horizontalOnePixelSize = 1f / (float) textureWidth;
     }
 
     private static boolean try8888 = true;
-    private static FrameBuffer getLinearFrameBuffer(int width, int height, boolean hasDepth){
+
+    private static FrameBuffer getLinearFrameBuffer (int width, int height, boolean hasDepth) {
 
         if (try8888) {
             try {
@@ -200,12 +205,12 @@ public class GaussianBlur implements Disposable{
                 Pixmap.Format.RGB565, width, height, hasDepth);
     }
 
-    public int getMaxRadius() {
+    public int getMaxRadius () {
         return maxRadius;
     }
 
     //Private because untested.
-    private void setMaxRadius(int maxRadius) {
+    private void setMaxRadius (int maxRadius) {
         shaderProvider.disposeShader(blurPassShaderProgram);
         shaderProvider.obtainBlurPassShaderProgram(maxRadius);
         setRadius(maxRadius);
@@ -214,21 +219,24 @@ public class GaussianBlur implements Disposable{
     /**
      * Set the blur radius. It can be set higher than the max radius, but clipping will be visible
      * if it exceeds it by more than ~15%.
+     *
      * @param radius
      */
-    public void setRadius (float radius){
+    public void setRadius (float radius) {
         setSigma(radius / 3f);
     }
 
-    public float getRadius (){
+    public float getRadius () {
         return 3f * sigma;
     }
 
-    /** Prepare to use linear filtering to sample two points by controlling offsets. Method described
-     * here: http://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/*/
-    private void setSigma(float sigma){
+    /**
+     * Prepare to use linear filtering to sample two points by controlling offsets. Method described
+     * here: http://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/
+     */
+    private void setSigma (float sigma) {
 
-        if (this.sigma != sigma){
+        if (this.sigma != sigma) {
             this.sigma = sigma;
 
             if (sigma < MIN_SIGMA)
@@ -238,16 +246,16 @@ public class GaussianBlur implements Disposable{
                 return;
 
             //Calculate standard weights
-            float twoSigmaSquared = 2*sigma*sigma;
+            float twoSigmaSquared = 2 * sigma * sigma;
             float weightSum = 0;
-            for (int i=0; i <= maxRadius; i++){
+            for (int i = 0; i <= maxRadius; i++) {
                 tmpArray[i] = (1.0f / (MathUtils.PI * twoSigmaSquared)) *
-                        (float)Math.exp(-(double)(i*i) / (double)twoSigmaSquared);
-                weightSum += i==0 ? tmpArray[i] : 2*tmpArray[i];
+                        (float) Math.exp(-(double) (i * i) / (double) twoSigmaSquared);
+                weightSum += i == 0 ? tmpArray[i] : 2 * tmpArray[i];
             }
 
             //Normalize them to avoid darkening
-            for (int i=0; i <= maxRadius; i++){
+            for (int i = 0; i <= maxRadius; i++) {
                 tmpArray[i] /= weightSum;
             }
 
@@ -256,36 +264,42 @@ public class GaussianBlur implements Disposable{
             weightAtCenter = tmpArray[0];
 
             //Fill into the optimized arrays
-            for (int i=0; i < offsets.length; i++)
-            {
-                float left = tmpArray[i*2 + 1];
-                float right = tmpArray[i*2 + 2];
+            for (int i = 0; i < offsets.length; i++) {
+                float left = tmpArray[i * 2 + 1];
+                float right = tmpArray[i * 2 + 2];
                 weights[i] = left + right;
-                offsets[i] = (left * (i*2 + 1) + right * (i*2 + 2)) / weights[i];
+                offsets[i] = (left * (i * 2 + 1) + right * (i * 2 + 2)) / weights[i];
             }
 
         }
     }
 
-    public float getSigma(){
+    public float getSigma () {
         return sigma;
     }
 
-    protected boolean shouldBlur(){
+    protected boolean shouldBlur () {
         return maxRadius != 0 && sigma > MIN_SIGMA;
     }
 
     /**
      * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
      */
-    public void setClearColor(Color color){
+    public void setClearColor (Color color) {
         clearColor.set(color);
     }
 
-    /**Sets whether and how to blend the texture into the scene
-     *
+    /**
+     * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
      */
-    public void setBlending(boolean enabled, int blendSrcFunc, int blendDstFunc){
+    public void setClearColor (float r, float g, float b, float a){
+        clearColor.set(r, g, b, a);
+    }
+
+    /**
+     * Sets whether and how to blend the texture into the scene
+     */
+    public void setBlending (boolean enabled, int blendSrcFunc, int blendDstFunc) {
         blendingEnabled = enabled;
         this.blendSrcFunc = blendSrcFunc;
         this.blendDstFunc = blendDstFunc;
@@ -294,55 +308,39 @@ public class GaussianBlur implements Disposable{
     /**
      * Set the normalized depth that the texture is rendered at if depthTestingToScene it true.
      */
-    public void setTextureToSceneDepth(float depth){
-        OrthographicCamera tempCam = new OrthographicCamera(2,2);
-        tempCam.position.set(0,0,depth);
+    public void setTextureToSceneDepth (float depth) {
+        OrthographicCamera tempCam = new OrthographicCamera(2, 2);
+        tempCam.position.set(0, 0, depth);
         tempCam.near = 0;
         tempCam.far = 1;
         tempCam.update();
-        fboToSceneProjectionMatrix = new Matrix4(tempCam.combined);
-        tempCam.up.set(1,0,0);
-        tempCam.update();
-        fboToSceneProjectionMatrixRight = new Matrix4(tempCam.combined);
-        tempCam.up.set(-1,0,0);
-        tempCam.update();
-        fboToSceneProjectionMatrixLeft = new Matrix4(tempCam.combined);
-
+        fboToSceneProjectionMatrix.set(tempCam.combined);
     }
 
-    public void begin(){
+    public void begin () {
 
-        if (fboInitialTargetStandard == null)
+        if (currentBufferSet == null)
             throw new GdxRuntimeException("begin() called before resize().");
 
         GL20 gl = Gdx.gl20;
-        if (useInverseTarget)
-            fboInitialTargetInverted.begin();
-        else
-            fboInitialTargetStandard.begin();
+        currentBufferSet.initialTarget.begin();
         gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-        if (hasDepth){
+        if (hasDepth) {
             gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         } else {
             gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         }
     }
 
-    private void doBlurPass(FrameBuffer fboInput, boolean vertical) {
+    private void doBlurPass (FrameBuffer fboInput, boolean vertical) {
         GL20 gl = Gdx.gl20;
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         spriteBatch.setShader(blurPassShaderProgram);
         gl.glDisable(GL20.GL_BLEND);
         spriteBatch.begin();
-        if (useInverseTarget) {
-            blurPassShaderProgram.setUniformf("u_size",
-                    vertical ? horizontalOnePixelSize : verticalOnePixelSize,
-                    0);
-        } else {
-            blurPassShaderProgram.setUniformf("u_size",
-                    vertical ? 0 : horizontalOnePixelSize,
-                    vertical ? verticalOnePixelSize : 0);
-        }
+        blurPassShaderProgram.setUniformf("u_size",
+                vertical ? 0 : horizontalOnePixelSize,
+                vertical ? verticalOnePixelSize : 0);
         blurPassShaderProgram.setUniform4fv("u_offsets", offsets, 0, 4);
         blurPassShaderProgram.setUniformf("u_weightAtCenter", weightAtCenter);
         blurPassShaderProgram.setUniform4fv("u_weights", weights, 0, 4);
@@ -352,102 +350,67 @@ public class GaussianBlur implements Disposable{
         spriteBatch.setShader(null);
     }
 
-    /**Disables depth testing. Must re-enable it if 3D API is expecting it in its RenderContext
-     *
+    /**
+     * Disables depth testing. Must re-enable it if 3D API is expecting it in its RenderContext
      */
-    public void end(){
-        FrameBuffer initialTargetBuffer;
-        if (useInverseTarget)
-            initialTargetBuffer = fboInitialTargetInverted;
-        else
-            initialTargetBuffer = fboInitialTargetStandard;
-        initialTargetBuffer.end();
+    public void end () {
+        currentBufferSet.initialTarget.end();
 
         if (shouldBlur()) {
             spriteBatch.disableBlending();
             Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-
-            //rotate if using the inverse target
-            if (useInverseTarget){
-                spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrixRight);
-            } else {
-                spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
-            }
-            fboPass1.begin();
-            doBlurPass(initialTargetBuffer, false);
-            fboPass1.end();
-            if (useInverseTarget){ //don't rotate the second pass
-                spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
-            }
-            fboPass2.begin();
-            doBlurPass(fboPass1, true);
-            fboPass2.end();
+            spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
+            currentBufferSet.pass1.begin();
+            doBlurPass(currentBufferSet.initialTarget, false);
+            currentBufferSet.pass1.end();
+            currentBufferSet.pass2.begin();
+            doBlurPass(currentBufferSet.pass1, true);
+            currentBufferSet.pass2.end();
         }
     }
 
-    public void render() {
+    public void render () {
         render(null);
     }
 
-    public void render(ShaderProgram customShader){
-        if (blendingEnabled){
+    public void render (ShaderProgram customShader) {
+        if (blendingEnabled) {
             spriteBatch.setBlendFunction(blendSrcFunc, blendDstFunc);
             spriteBatch.enableBlending();
-        } else{
+        } else {
             spriteBatch.disableBlending();
         }
 
-        if (depthTestingToScene){
+        if (depthTestingToScene) {
             Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-        }
-
-        FrameBuffer initialTargetBuffer;
-        if (useInverseTarget) {
-            initialTargetBuffer = fboInitialTargetInverted;
-        } else {
-            initialTargetBuffer = fboInitialTargetStandard;
         }
 
         spriteBatch.setShader(customShader);
         spriteBatch.setColor(Color.WHITE);
 
-        if (shouldBlur()){
-            Texture texture = fboPass2.getColorBufferTexture();
-            if (useInverseTarget) {
-                spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrixLeft);
-                spriteBatch.begin();
-                applyCustomShaderParameters(true);
-                spriteBatch.draw(texture, 1, -1, -2, 2);
-            }else{
-                spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
-                spriteBatch.begin();
-                applyCustomShaderParameters(false);
-                spriteBatch.draw(texture, -1, 1, 2, -2);
-            }
-        } else{
-            Texture texture = initialTargetBuffer.getColorBufferTexture();
-            spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
-            spriteBatch.begin();
-            spriteBatch.draw(texture, -1, 1, 2, -2);
-        }
+        FrameBuffer buffer = shouldBlur() ? currentBufferSet.pass2 : currentBufferSet.initialTarget;
+        spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
+        spriteBatch.begin();
+        applyCustomShaderParameters(false);
+        spriteBatch.draw(buffer.getColorBufferTexture(), -1, 1, 2, -2);
         spriteBatch.end();
 
         spriteBatch.setShader(null);
 
-        if (depthTestingToScene){
+        if (depthTestingToScene) {
             Gdx.gl.glDisable(GL20.GL_DEPTH_TEST); //return to OpenGL default, as expected by other classes
         }
     }
 
-    public CustomShaderPreparer getCustomShaderPreparer() {
+    public CustomShaderPreparer getCustomShaderPreparer () {
         return customShaderPreparer;
     }
 
-    public void setCustomShaderPreparer(CustomShaderPreparer customShaderPreparer) {
+    public void setCustomShaderPreparer (CustomShaderPreparer customShaderPreparer) {
         this.customShaderPreparer = customShaderPreparer;
     }
 
-    private void applyCustomShaderParameters(boolean flipped){
+    private void applyCustomShaderParameters (boolean flipped) {
         if (customShaderPreparer != null)
             customShaderPreparer.applyCustomShaderParameters(spriteBatch, flipped);
     }
@@ -455,9 +418,10 @@ public class GaussianBlur implements Disposable{
 
     /**
      * Set whether depth testing should be used when drawing the texture into the scene.
+     *
      * @param depthTestingToScene
      */
-    public void setDepthTestingToScene(boolean depthTestingToScene) {
+    public void setDepthTestingToScene (boolean depthTestingToScene) {
         this.depthTestingToScene = depthTestingToScene;
     }
 
