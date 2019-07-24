@@ -75,12 +75,6 @@ public class GaussianBlur implements Disposable {
     private final boolean hasDepth;
     private boolean depthTestingToScene = true;
 
-    public interface CustomShaderPreparer {
-        void applyCustomShaderParameters (SpriteBatch spriteBatch, boolean flipped);
-    }
-
-    private CustomShaderPreparer customShaderPreparer;
-
     /**
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
      *                            radius is set to this value. The actual maximum blur radius will be rounded
@@ -369,11 +363,21 @@ public class GaussianBlur implements Disposable {
         }
     }
 
-    public void render () {
-        render(null);
+    /**
+     * Renders the blurred image to the screen.
+     */
+    public void render (){
+        beginRender(null);
+        finishRender();
     }
 
-    public void render (ShaderProgram customShader) {
+    /** Prepare to render the blurred image to the screen using a custom shader. Shader parameters can
+     * be set after this is called. Must subsequently be followed by a call to {@linkplain #finishRender()}.
+     * @param customShader The shader program to use. Must use a {@code u_projTrans} projection matrix
+     *                     as required by the internal SpriteBatch.
+     */
+    public void beginRender (ShaderProgram customShader) {
+        spriteBatch.setShader(customShader);
         if (blendingEnabled) {
             spriteBatch.setBlendFunction(blendSrcFunc, blendDstFunc);
             spriteBatch.enableBlending();
@@ -385,13 +389,16 @@ public class GaussianBlur implements Disposable {
             Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         }
 
-        spriteBatch.setShader(customShader);
         spriteBatch.setColor(Color.WHITE);
-
-        FrameBuffer buffer = shouldBlur() ? currentBufferSet.pass2 : currentBufferSet.initialTarget;
         spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
         spriteBatch.begin();
-        applyCustomShaderParameters(false);
+    }
+
+    /** Must be preceded by a call to {@linkplain #beginRender(ShaderProgram)}. Finishes rendering
+     * the blurred image to the screen.
+     */
+    public void finishRender (){
+        FrameBuffer buffer = shouldBlur() ? currentBufferSet.pass2 : currentBufferSet.initialTarget;
         spriteBatch.draw(buffer.getColorBufferTexture(), -1, 1, 2, -2);
         spriteBatch.end();
 
@@ -401,20 +408,6 @@ public class GaussianBlur implements Disposable {
             Gdx.gl.glDisable(GL20.GL_DEPTH_TEST); //return to OpenGL default, as expected by other classes
         }
     }
-
-    public CustomShaderPreparer getCustomShaderPreparer () {
-        return customShaderPreparer;
-    }
-
-    public void setCustomShaderPreparer (CustomShaderPreparer customShaderPreparer) {
-        this.customShaderPreparer = customShaderPreparer;
-    }
-
-    private void applyCustomShaderParameters (boolean flipped) {
-        if (customShaderPreparer != null)
-            customShaderPreparer.applyCustomShaderParameters(spriteBatch, flipped);
-    }
-
 
     /**
      * Set whether depth testing should be used when drawing the texture into the scene.
