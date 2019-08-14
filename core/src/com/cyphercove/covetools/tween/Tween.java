@@ -52,7 +52,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
     private boolean began, complete;
     protected T target;
     protected TweenCompletionListener<T> completionListener;
-    protected TweenInterruptionListener<T> interuptionListener;
+    protected TweenInterruptionListener<T> interruptionListener;
     private Pool pool;
     private U next;
     protected U head;
@@ -292,7 +292,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
             next.head = head;
             next.target = target;
             next.completionListener = completionListener;
-            next.interuptionListener = interuptionListener;
+            next.interruptionListener = interruptionListener;
             next.passChainParametersDown();
         }
     }
@@ -317,12 +317,15 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
         return head;
     }
 
-    /** Return this tween and its chained children to their pools if they have them. Free any configurable eases.*/
+    /** Return this tween and its chained children to their pools if they have them. Drops all
+     * external references. Frees any configurable eases.*/
     public void free (){
         if (next != null && next != head)
             next.free();
         if (ease != null)
             ease.free();
+        completionListener = null;
+        interruptionListener = null;
         if (pool != null)
             pool.free(this);
     }
@@ -336,7 +339,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
     }
 
     public TweenInterruptionListener<T> getInterruptionListener () {
-        return interuptionListener;
+        return interruptionListener;
     }
 
     /**
@@ -359,7 +362,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      * @return This tween for building.
      */
     public U onInterrupted (TweenInterruptionListener<T> listener){
-        this.interuptionListener = listener;
+        this.interruptionListener = listener;
         if (next != null && next != head)
             next.onInterrupted(listener);
         return (U)this;
