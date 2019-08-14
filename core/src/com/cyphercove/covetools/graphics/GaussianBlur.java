@@ -32,7 +32,7 @@ public class GaussianBlur implements Disposable {
         int width, height;
         FrameBuffer initialTarget, pass1, pass2;
 
-        public BufferSet (int width, int height){
+        public BufferSet (int width, int height) {
             this.width = width;
             this.height = height;
             initialTarget = getLinearFrameBuffer(width, height, hasDepth);
@@ -40,7 +40,7 @@ public class GaussianBlur implements Disposable {
             pass2 = getLinearFrameBuffer(width, height, false);
         }
 
-        public void dispose (){
+        public void dispose () {
             initialTarget.dispose();
             pass1.dispose();
             pass2.dispose();
@@ -79,7 +79,7 @@ public class GaussianBlur implements Disposable {
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
      *                            radius is set to this value. The actual maximum blur radius will be rounded
      *                            up to the nearest even integer due to internal workings.
-     * @param hasDepth
+     * @param hasDepth            Whether the scene being drawn uses a depth buffer.
      * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
      *                            rotation can be done quickly without a pause.
      */
@@ -91,9 +91,12 @@ public class GaussianBlur implements Disposable {
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
      *                            radius is set to this value. The actual maximum blur radius will be rounded
      *                            up to the nearest even integer due to internal workings.
-     * @param hasDepth
+     * @param hasDepth            Whether the scene being drawn uses a depth buffer.
      * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
      *                            rotation can be done quickly without a pause.
+     * @param shaderProvider      Creates the shader used internally by GaussianBlur. If there are multiple
+     *                            GaussianBlurs in an application, passing a single instance to each can
+     *                            avoid redundant ShaderPrograms from being compiled.
      */
     public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget,
                          GaussianBlurShaderProvider shaderProvider) {
@@ -156,19 +159,19 @@ public class GaussianBlur implements Disposable {
         if (currentBufferSet != null && currentBufferSet.width == textureWidth && currentBufferSet.height == textureHeight)
             return;
 
-        if (heldBufferSet != null && heldBufferSet.width == textureWidth && heldBufferSet.height == textureHeight){
+        if (heldBufferSet != null && heldBufferSet.width == textureWidth && heldBufferSet.height == textureHeight) {
             BufferSet oldCurrent = currentBufferSet;
             currentBufferSet = heldBufferSet;
             heldBufferSet = oldCurrent;
             return;
         }
 
-        if (heldBufferSet != null){
+        if (heldBufferSet != null) {
             heldBufferSet.dispose();
             heldBufferSet = null;
         }
 
-        if (keepInverseTarget){
+        if (keepInverseTarget) {
             heldBufferSet = currentBufferSet;
         } else {
             currentBufferSet.dispose();
@@ -286,7 +289,7 @@ public class GaussianBlur implements Disposable {
     /**
      * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
      */
-    public void setClearColor (float r, float g, float b, float a){
+    public void setClearColor (float r, float g, float b, float a) {
         clearColor.set(r, g, b, a);
     }
 
@@ -366,13 +369,15 @@ public class GaussianBlur implements Disposable {
     /**
      * Renders the blurred image to the screen.
      */
-    public void render (){
+    public void render () {
         beginRender(null);
         finishRender();
     }
 
-    /** Prepare to render the blurred image to the screen using a custom shader. Shader parameters can
+    /**
+     * Prepare to render the blurred image to the screen using a custom shader. Shader parameters can
      * be set after this is called. Must subsequently be followed by a call to {@linkplain #finishRender()}.
+     *
      * @param customShader The shader program to use. Must use a {@code u_projTrans} projection matrix
      *                     as required by the internal SpriteBatch.
      */
@@ -394,10 +399,11 @@ public class GaussianBlur implements Disposable {
         spriteBatch.begin();
     }
 
-    /** Must be preceded by a call to {@linkplain #beginRender(ShaderProgram)}. Finishes rendering
+    /**
+     * Must be preceded by a call to {@linkplain #beginRender(ShaderProgram)}. Finishes rendering
      * the blurred image to the screen.
      */
-    public void finishRender (){
+    public void finishRender () {
         FrameBuffer buffer = shouldBlur() ? currentBufferSet.pass2 : currentBufferSet.initialTarget;
         spriteBatch.draw(buffer.getColorBufferTexture(), -1, 1, 2, -2);
         spriteBatch.end();
@@ -409,11 +415,7 @@ public class GaussianBlur implements Disposable {
         }
     }
 
-    /**
-     * Set whether depth testing should be used when drawing the texture into the scene.
-     *
-     * @param depthTestingToScene
-     */
+    /** @param depthTestingToScene Whether depth testing should be used when drawing the texture into the scene. */
     public void setDepthTestingToScene (boolean depthTestingToScene) {
         this.depthTestingToScene = depthTestingToScene;
     }
