@@ -217,7 +217,7 @@ public class GaussianBlur implements Disposable {
      * Set the blur radius. It can be set higher than the max radius, but clipping will be visible
      * if it exceeds it by more than ~15%.
      *
-     * @param radius
+     * @param radius The new blur radius
      */
     public void setRadius (float radius) {
         setSigma(radius / 3f);
@@ -281,6 +281,7 @@ public class GaussianBlur implements Disposable {
 
     /**
      * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
+     * @param color The clear color. The reference is not kept.
      */
     public void setClearColor (Color color) {
         clearColor.set(color);
@@ -288,6 +289,10 @@ public class GaussianBlur implements Disposable {
 
     /**
      * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
+     * @param r Red, from 0 to 1
+     * @param g Green, from 0 to 1
+     * @param b Blue, from 0 to 1
+     * @param a Alpha, from 0 to 1
      */
     public void setClearColor (float r, float g, float b, float a) {
         clearColor.set(r, g, b, a);
@@ -295,6 +300,9 @@ public class GaussianBlur implements Disposable {
 
     /**
      * Sets whether and how to blend the texture into the scene
+     * @param enabled Whether blending should be enabled
+     * @param blendSrcFunc The GL source function parameter to use if {@code enabled} is true.
+     * @param blendDstFunc The GL destination function parameter to use if {@code enabled} is true.
      */
     public void setBlending (boolean enabled, int blendSrcFunc, int blendDstFunc) {
         blendingEnabled = enabled;
@@ -304,6 +312,8 @@ public class GaussianBlur implements Disposable {
 
     /**
      * Set the normalized depth that the texture is rendered at if depthTestingToScene it true.
+     * @param depth The depth to place the scene at, from 0 to 1, relative to the frustum that was
+     *              used to draw the 3D scene.
      */
     public void setTextureToSceneDepth (float depth) {
         OrthographicCamera tempCam = new OrthographicCamera(2, 2);
