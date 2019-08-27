@@ -23,7 +23,7 @@ allprojects {
 
     ext {
         appName = "CoveTools"
-        gdxVersion = '1.9.9'
+        gdxVersion = '1.9.10'
         exp4jVersion = '0.4.8'
     }
 

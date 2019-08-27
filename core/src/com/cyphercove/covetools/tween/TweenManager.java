@@ -17,6 +17,7 @@ package com.cyphercove.covetools.tween;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectMap;
 
 /**
  * An added tween interrupts any tween that is currently running on the same target.
@@ -125,7 +126,7 @@ public class TweenManager {
         }
         tmpTweens.clear();
 
-        for (IdentityMap.Entry<Object, TweenCompletionListener> entry : tmpListeners){
+        for (ObjectMap.Entry<Object, TweenCompletionListener> entry : tmpListeners){
             entry.value.onTweenComplete(entry.key);
         }
         tmpListeners.clear();
