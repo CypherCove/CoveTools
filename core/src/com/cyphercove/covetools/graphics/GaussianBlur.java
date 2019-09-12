@@ -31,13 +31,17 @@ public class GaussianBlur implements Disposable {
     class BufferSet {
         int width, height;
         FrameBuffer initialTarget, pass1, pass2;
+        float horizontalOnePixelSize;
+        float verticalOnePixelSize;
 
-        public BufferSet (int width, int height) {
+        BufferSet (int width, int height) {
             this.width = width;
             this.height = height;
             initialTarget = getLinearFrameBuffer(width, height, hasDepth);
             pass1 = getLinearFrameBuffer(width, height, false);
             pass2 = getLinearFrameBuffer(width, height, false);
+            horizontalOnePixelSize = 1f / (float)width;
+            verticalOnePixelSize = 1f / (float)height;
         }
 
         public void dispose () {
@@ -60,8 +64,6 @@ public class GaussianBlur implements Disposable {
     private BufferSet currentBufferSet;
     private BufferSet heldBufferSet;
     private boolean keepInverseTarget;
-    private float horizontalOnePixelSize;
-    private float verticalOnePixelSize;
     private final float[] tmpArray = new float[MAX_RADIUS + 1];
     private float[] offsets;
     private float weightAtCenter;
@@ -178,8 +180,6 @@ public class GaussianBlur implements Disposable {
         }
 
         currentBufferSet = new BufferSet(textureWidth, textureHeight);
-        verticalOnePixelSize = 1f / (float) textureHeight;
-        horizontalOnePixelSize = 1f / (float) textureWidth;
     }
 
     private static boolean try8888 = true;
@@ -346,8 +346,8 @@ public class GaussianBlur implements Disposable {
         gl.glDisable(GL20.GL_BLEND);
         spriteBatch.begin();
         blurPassShaderProgram.setUniformf("u_size",
-                vertical ? 0 : horizontalOnePixelSize,
-                vertical ? verticalOnePixelSize : 0);
+                vertical ? 0 : currentBufferSet.horizontalOnePixelSize,
+                vertical ? currentBufferSet.verticalOnePixelSize : 0);
         blurPassShaderProgram.setUniform4fv("u_offsets", offsets, 0, 4);
         blurPassShaderProgram.setUniformf("u_weightAtCenter", weightAtCenter);
         blurPassShaderProgram.setUniform4fv("u_weights", weights, 0, 4);
