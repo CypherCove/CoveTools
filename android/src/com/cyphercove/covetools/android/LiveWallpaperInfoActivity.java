@@ -17,11 +17,13 @@ package com.cyphercove.covetools.android;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.WallpaperInfo;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 /** An activity that opens the live wallpaper chooser list, or a specific live wallpaper's preview on Jelly Bean and later.
@@ -47,12 +49,22 @@ public abstract class LiveWallpaperInfoActivity extends Activity {
         			getNoLiveWallpapersToastStringResource(), 
     				Toast.LENGTH_LONG)
     				.show();
-    	} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN){
+        	return;
+    	}
+
+        if (isWallpaperRunning() && haveWallpaperSettings()){
+        	boolean successfullyOpenedSettings = openWallpaperSettings();
+        	if (successfullyOpenedSettings){
+        		finish();
+        		return;
+			}
+		}
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN){
         	openWallpaperChooser();
         } else {
         	openWallpaperPreview();
         }
-        
         finish();
 	}
 	
@@ -82,6 +94,39 @@ public abstract class LiveWallpaperInfoActivity extends Activity {
 		i.setAction(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
 		i.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, componentName);
 		startActivity(i);
+	}
+
+	/** Whether the live wallpaper is already set as the system wallpaper. */
+	private boolean isWallpaperRunning (){
+		WallpaperInfo info = WallpaperManager.getInstance(getBaseContext()).getWallpaperInfo();
+		if (info != null){
+			return info.getServiceName().equals(getWallpaperServiceClass().getName());
+		}
+		return false;
+	}
+
+	/** Whether the currently running wallpaper has settings. */
+	private boolean haveWallpaperSettings (){
+		WallpaperInfo info = WallpaperManager.getInstance(getBaseContext()).getWallpaperInfo();
+		if (info != null){
+			return info.getSettingsActivity() != null;
+		}
+		return false;
+	}
+
+	private boolean openWallpaperSettings (){
+		WallpaperInfo info = WallpaperManager.getInstance(getBaseContext()).getWallpaperInfo();
+		if (info != null){
+			String settingsActivity = info.getSettingsActivity();
+			if (settingsActivity != null){
+				Intent i = new Intent();
+				i.setAction(Intent.ACTION_MAIN);
+				i.setComponent(new ComponentName(info.getPackageName(), settingsActivity));
+				startActivity(i);
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
