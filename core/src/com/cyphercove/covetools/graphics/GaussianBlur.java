@@ -26,6 +26,9 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+/** Used to draw a scene, apply Gaussian blur to it, and draw it full screen. Useful for post processing
+ * effects such as bloom, 2D lightmapping, and depth of field.
+ */
 public class GaussianBlur implements Disposable {
 
     class BufferSet {
@@ -58,7 +61,6 @@ public class GaussianBlur implements Disposable {
     private boolean blendingEnabled = false;
     private int blendSrcFunc = GL20.GL_SRC_ALPHA;
     private int blendDstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-    private Color clearColor = new Color(0, 0, 0, 1);
     private SpriteBatch spriteBatch;
     private ShaderProgram blurPassShaderProgram;
     private BufferSet currentBufferSet;
@@ -72,15 +74,17 @@ public class GaussianBlur implements Disposable {
 
     private final Matrix4 fboToSceneProjectionMatrix = new Matrix4();
 
-    GaussianBlurShaderProvider shaderProvider;
+    private GaussianBlurShaderProvider shaderProvider;
 
     private final boolean hasDepth;
-    private boolean depthTestingToScene = true;
+    private boolean depthTestingToScene;
 
     /**
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
      *                            radius is set to this value. The actual maximum blur radius will be rounded
-     *                            up to the nearest even integer due to internal workings.
+     *                            up to the nearest even integer due to internal workings. NOTE:
+     *                            currently the maximum is always 8. A later version of the class
+     *                            may support lower or higher values.
      * @param hasDepth            Whether the scene being drawn uses a depth buffer.
      * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
      *                            rotation can be done quickly without a pause.
@@ -92,7 +96,9 @@ public class GaussianBlur implements Disposable {
     /**
      * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
      *                            radius is set to this value. The actual maximum blur radius will be rounded
-     *                            up to the nearest even integer due to internal workings.
+     *                            up to the nearest even integer due to internal workings. NOTE:
+     *                            currently the maximum is always 8. A later version of the class
+     *                            may support lower or higher values.
      * @param hasDepth            Whether the scene being drawn uses a depth buffer.
      * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
      *                            rotation can be done quickly without a pause.
@@ -111,7 +117,8 @@ public class GaussianBlur implements Disposable {
         this.keepInverseTarget = keepInverseTarget;
         spriteBatch = new SpriteBatch(1);
 
-        this.maxRadius = (int) Math.ceil(initialAndMaxRadius);
+        // Enforcing minimum of 8 for the max radius because the shader doesn't support lower values.
+        this.maxRadius = (int) Math.ceil(Math.max(8, initialAndMaxRadius));
         if (this.maxRadius % 2 != 0)
             this.maxRadius++; //round up to nearest even integer.
         offsets = new float[this.maxRadius / 2];
@@ -280,25 +287,6 @@ public class GaussianBlur implements Disposable {
     }
 
     /**
-     * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
-     * @param color The clear color. The reference is not kept.
-     */
-    public void setClearColor (Color color) {
-        clearColor.set(color);
-    }
-
-    /**
-     * Sets a clear color for the base textures, which tends to bleed into the top or right edge (whichever is longer).
-     * @param r Red, from 0 to 1
-     * @param g Green, from 0 to 1
-     * @param b Blue, from 0 to 1
-     * @param a Alpha, from 0 to 1
-     */
-    public void setClearColor (float r, float g, float b, float a) {
-        clearColor.set(r, g, b, a);
-    }
-
-    /**
      * Sets whether and how to blend the texture into the scene
      * @param enabled Whether blending should be enabled
      * @param blendSrcFunc The GL source function parameter to use if {@code enabled} is true.
@@ -331,12 +319,6 @@ public class GaussianBlur implements Disposable {
 
         GL20 gl = Gdx.gl20;
         currentBufferSet.initialTarget.begin();
-        gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-        if (hasDepth) {
-            gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        } else {
-            gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        }
     }
 
     private void doBlurPass (FrameBuffer fboInput, boolean vertical) {

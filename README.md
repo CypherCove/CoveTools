@@ -120,6 +120,58 @@ You can also easily use your wallpaper as a Daydream, aka screensaver by wrappin
     
 A daydream shouldn't be running while a user is changing settings, so there is no option to pass a SharedPreferences instance.
 
+## GaussianBlur
+
+This tool is for applying Gaussian blur post processing effects such as depth of field, bloom, or 2D light mapping. 
+
+Instantiate one like any other Disposable object such as FrameBuffer or SpriteBatch. Make sure to dispose it in `dispose()`. Before you use it, you must call `resize()` on it at least once. Presumably you'll be calling this in your `resize()` method:
+
+```
+public void resize (int width, int height){
+    //...
+    
+    // You can pass a value corresponding to the backing FrameBuffer's long dimension. The width and
+    // height will be filled automatically with appropriate aspect ratio.
+    gaussianBlur.resize(50, width, height);
+}
+```
+
+Then in `render()`, you can draw the scene you want blurred between `begin()` and `end()` calls.
+
+```
+public void render (){
+    //update game objects...
+    
+    gaussianBlur.begin();
+    Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    
+    // draw the scene that will be blurred
+    
+    gaussianBlur.end();
+    
+    //Draw the rest of the scene normally.
+    Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    //...
+    
+    //Draw the gaussian blur over the scene
+    gaussianBlur.setRadius(3f); // Can be anywhere between 0 and 8. The radius of the Gaussian.
+    gaussianBlur.setBlending(true, GL20.GL_ONE, GL20.GL_ONE);
+    gaussianBlur.render(); 
+    
+}
+```
+
+You can also use a custom shader. GaussianBlur internally uses a tiny single-quad-sized SpriteBatch 
+for drawing, so it should be a shader that works with a SpriteBatch (same uniform names).
+
+```
+gaussianBlur.beginRender(myCustomShader);
+myCustomShader.setUniformf(...); // Set any necessary uniforms here.
+gaussianBlur.finishRender();
+```
+
 ## Anisotropy
 
 LibGDX doesn't natively provide convenience methods for setting Texture anisotropic filtering. Use the Anisotropy class like this:
