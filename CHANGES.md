@@ -1,4 +1,6 @@
-# 1.2.1 (pending next release)
+# 1.2.2 (pending next release)
+
+# 1.2.1 
  - Update to LibGDX 1.9.10
  - **[Breaking]** `ColorUtil.blendRGBWithSaturation(...)` changed signature to include result parameter to avoid ambiguity
  - **[Breaking]** ColorUtil methods removed if they duplicated functionality from the Color class.
