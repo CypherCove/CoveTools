@@ -1,4 +1,7 @@
-# 1.2.2 (pending next release)
+# 1.2.3 (pending next release)
+
+# 1.2.2
+ - Add TextureAtlasCacher.
 
 # 1.2.1 
  - Update to LibGDX 1.9.10
