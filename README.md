@@ -75,6 +75,23 @@ Asset loader parameter fields that you reference only by name in annotations are
 
     -keep class * implements com.cyphercove.covetools.assets.AssetContainer { *; }
     
+## TextureAtlasCacher
+
+TextureAtlasCacher uses the names of an object's fields to pull regions from a TextureAtlas and assign them automatically. Field names can also have suffixes like "Region", "AtlasRegion" or "TextureRegion" that are automatically omitted when finding the regions in the atlas. Or, the `@RegionName` annotation can be used to use an explicit name.
+
+In this example, this class's fields are all assigned automatically from the TextureAtlas passed to its constructor.
+
+```
+public class MyTextureRegions {
+    public TextureRegion door;
+    public TextureRegion[] swayingTree;
+    @RegionName("egg") public AtlasRegion rollingEgg;
+
+    public MyTextureRegions(TextureAtlas atlas) {
+        TextureAtlasCacher.cacheRegions(atlas, this, true);
+    }
+}
+```   
 ## JsonFieldUpdater
 
 This class lets you update field values (by reflection) by modifying a Json file and loading it at runtime. I use this to tweak values quickly without rebuilding the game over and over. I create an input listener that calls `jsonFieldUpdater.readFieldsToObjects(...)` in response to a key press. For example:
