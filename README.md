@@ -69,6 +69,12 @@ Finally, you can optionally implement the AssetContainer interface to specify a 
 		}
     }
     
+### Proguard/R8 tip
+
+Asset loader parameter fields that you reference only by name in annotations are at risk of being stripped during minification. If you define these fields only in AssetContainers, you can use a single rule to protect all of these fields:
+
+    -keep class * implements com.cyphercove.covetools.assets.AssetContainer { *; }
+    
 ## JsonFieldUpdater
 
 This class lets you update field values (by reflection) by modifying a Json file and loading it at runtime. I use this to tweak values quickly without rebuilding the game over and over. I create an input listener that calls `jsonFieldUpdater.readFieldsToObjects(...)` in response to a key press. For example:
