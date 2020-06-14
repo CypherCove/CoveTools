@@ -21,6 +21,8 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import com.cyphercove.covetools.tween.Tween;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Easing functions that can be used with {@linkplain Tween Tweens}. Non-configurable eases are provided
  * as static immutable members. Configurable eases are provided via function calls. These configurable
@@ -68,7 +70,7 @@ abstract public class Ease {
          * @param startSpeed The beginning speed for the transition.
          * @return The Ease for building.
          */
-        Ease startSpeed (float startSpeed);
+        @NotNull Ease startSpeed (float startSpeed);
 
         /** @return the start speed of the function. */
         float getStartSpeed ();

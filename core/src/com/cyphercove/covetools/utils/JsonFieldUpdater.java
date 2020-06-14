@@ -26,6 +26,8 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.StringWriter;
 import java.security.AccessControlException;
 import java.util.Locale;
@@ -66,7 +68,7 @@ public class JsonFieldUpdater {
         this(new Json());
     }
 
-    public JsonFieldUpdater(Json json) {
+    public JsonFieldUpdater(@NotNull Json json) {
         this.json = json;
         json.setIgnoreUnknownFields(true);
 
@@ -105,6 +107,7 @@ public class JsonFieldUpdater {
         });
     }
 
+    @NotNull
     public Json getJson() {
         return json;
     }
@@ -117,7 +120,7 @@ public class JsonFieldUpdater {
         this.throwErrors = throwErrors;
     }
 
-    public void readFieldsToObjects(FileHandle jsonFile, Object... objects) {
+    public void readFieldsToObjects(@NotNull FileHandle jsonFile, @NotNull Object... objects) {
         readFieldsToObjects(jsonFile.readString(), objects);
     }
 
@@ -131,7 +134,7 @@ public class JsonFieldUpdater {
      * @param objects  A set of classes that can be referenced by simple name in the JSON instead of fully qualified names.
      *                 If a given object is a class, static fields will be written instead of object fields.
      */
-    public void readFieldsToObjects(String jsonText, Object... objects) {
+    public void readFieldsToObjects(@NotNull String jsonText, @NotNull Object... objects) {
         ObjectMap<String, Class> tagsToClasses = new ObjectMap<String, Class>(objects.length);
         for (Object object : objects) {
             Class type = object instanceof Class ? (Class) object : object.getClass();
@@ -237,7 +240,7 @@ public class JsonFieldUpdater {
         return nameToField;
     }
 
-    public <T> T getStaticFieldValue(Class<T> type, String fieldName) {
+    public <T> T getStaticFieldValue(@NotNull Class<T> type, @NotNull String fieldName) {
         OrderedMap<String, Field> fields = getStaticFields(type);
         Field field = fields.get(fieldName, null);
         Throwable throwable = null;
@@ -267,7 +270,8 @@ public class JsonFieldUpdater {
      * @param type The class to read.
      * @return A json representation of the class's static fields
      */
-    public static String toJson (Class type){
+    @NotNull
+    public static String toJson (@NotNull Class type){
         Field[] fields = ClassReflection.getDeclaredFields(type);
         JsonWriter writer = new JsonWriter(new StringWriter());
         writer.setOutputType(JsonWriter.OutputType.javascript);
@@ -295,7 +299,8 @@ public class JsonFieldUpdater {
      * @param object The object to read.
      * @return A json representation of the object's member fields
      */
-    public static String toJson (Object object){
+    @NotNull
+    public static String toJson (@NotNull Object object){
         Class type = object.getClass();
         Field[] fields = ClassReflection.getDeclaredFields(type);
         JsonWriter writer = new JsonWriter(new StringWriter());

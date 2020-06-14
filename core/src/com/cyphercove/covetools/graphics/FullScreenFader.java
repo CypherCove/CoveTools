@@ -25,6 +25,8 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Disposable;
 
+import org.jetbrains.annotations.NotNull;
+
 /**Draws a textured quad that fills the entire screen and fades out over a given time. This is intended for initially
  * fading in a scene as easily as possible--set it and forget it. Instantiate in create(), call {@link #render(float)} on
  * it at the bottom of your application's {@code render()}, and dispose of it ind {@code dispose()}.
@@ -51,7 +53,7 @@ public class FullScreenFader implements Disposable{
 
     private final Color color = new Color(0, 0, 0, 1f);
 
-    public FullScreenFader(float delay, float fadeTime, Color initialColor){
+    public FullScreenFader(float delay, float fadeTime, @NotNull Color initialColor){
         this.delay = delay;
         this.fadeTime = fadeTime;
 

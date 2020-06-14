@@ -20,6 +20,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool;
 import com.cyphercove.covetools.math.Ease;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 /**
@@ -81,7 +84,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      *
      * @param tweenManager The TweenManager to run the transition.
      */
-    public void start (TweenManager tweenManager){
+    public void start (@NotNull TweenManager tweenManager){
         tweenManager.start(this);
     }
 
@@ -234,7 +237,8 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      * @param target The target object to be transitioned.
      * @return This tween for building.
      */
-    public U target (T target) {
+    @NotNull
+    public U target (@NotNull T target) {
         this.target = target;
         if (next != null && next != head)
             next.target(target);
@@ -243,16 +247,18 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
 
     /** @return The pool this tween will automatically be returned to when the tween completes or is
      * interrupted, or null if none has been set. */
+    @Nullable
     public Pool getPool () {
         return pool;
     }
 
     /** Sets a pool that this tween will automatically be returned to when the tween or tween chain
      * is completed or interrupted.
-     * @param pool The pool to return this tween to.
+     * @param pool The pool to return this tween to, or null to clear it.
      * @return This tween for building.
      */
-    public U pool (Pool pool) {
+    @NotNull
+    public U pool (@Nullable Pool pool) {
         this.pool = pool;
         return (U)this;
     }
@@ -270,6 +276,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
     }
 
     /** @return The next tween in the chain, or null if none is set. */
+    @Nullable
     public U getNextInChain (){
         return next;
     }
@@ -300,6 +307,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
     /** Sets the head of the chain as the next in sequence, so it forms a repeating loop. Adding any
      * additional tweens to the chain will cancel this loop. This loop will continue indefinitely.
      * @return The head tween of the loop*/
+    @NotNull
     public U loop (){
         next = head;
         head.loops = -1;
@@ -311,6 +319,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      * @param times The number of times the loop should be performed. If there is a completion
      * listener, it will be called when the final loop is completed.
      * @return The head tween of the loop. */
+    @NotNull
     public U loop (int times){
         next = head;
         head.loops = times;
@@ -334,10 +343,12 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
         return began;
     }
 
+    @Nullable
     public TweenCompletionListener<T> getCompletionListener () {
         return completionListener;
     }
 
+    @Nullable
     public TweenInterruptionListener<T> getInterruptionListener () {
         return interruptionListener;
     }
@@ -348,7 +359,8 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      *                 and the sole parameter is the target object of the tween.
      * @return This tween for building.
      */
-    public U onComplete (TweenCompletionListener<T> listener) {
+    @NotNull
+    public U onComplete (@Nullable TweenCompletionListener<T> listener) {
         this.completionListener = listener;
         if (next != null && next != head)
             next.onComplete(listener);
@@ -361,7 +373,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      *                 and the sole parameter is the target object of the tween.
      * @return This tween for building.
      */
-    public U onInterrupted (TweenInterruptionListener<T> listener){
+    public U onInterrupted (@Nullable TweenInterruptionListener<T> listener){
         this.interruptionListener = listener;
         if (next != null && next != head)
             next.onInterrupted(listener);
@@ -381,6 +393,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
     /** Sets the length of the transition in seconds.
      * @param duration How long the translation will take.
      * @return This tween for building.*/
+    @NotNull
     public U duration (float duration) {
         this.duration = duration;
         return (U)this;
@@ -395,11 +408,13 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      * @param delay Wait time.
      * @return This tween for building.
      */
+    @NotNull
     public U delay (float delay) {
         this.delay = delay;
         return (U)this;
     }
 
+    @Nullable
     public Ease getEase () {
         return ease;
     }
@@ -414,7 +429,8 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      * @param ease The ease function to use.
      * @return This tween for building.
      */
-    public U ease (Ease ease) {
+    @NotNull
+    public U ease (@Nullable Ease ease) {
         this.ease = ease;
         return (U)this;
     }
@@ -433,6 +449,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      *                    interrupted tween.
      * @return This tween for building.
      */
+    @NotNull
     public U shouldBlend (boolean shouldBlend) {
         this.shouldBlend = shouldBlend;
         return (U)this;
@@ -482,7 +499,7 @@ public abstract class Tween<T, U extends Tween> implements Pool.Poolable {
      * the blend will be set up.
      * @param tween The tween that is being interrupted.
      */
-    void interrupt (U tween){
+    void interrupt (@NotNull U tween){
         if (getDuration() == 0 || !shouldBlend || !(ease instanceof Ease.Blendable))
             return;
         isBlended = true;

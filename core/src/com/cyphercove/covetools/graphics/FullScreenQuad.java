@@ -23,6 +23,8 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 
+import org.jetbrains.annotations.NotNull;
+
 /** Renders a mesh rectangle that fills the screen if no projection matrix is used. The only vertex
  * attribute for the shader is {@code a_position}. To use it, a separate ShaderProgram is needed. The
  * {@code shaderProgram.begin()} and {@code shaderProgram.end()} should be called before and after
@@ -51,7 +53,7 @@ public class FullScreenQuad implements Disposable {
         mesh.setVertices(VERTICES);
     }
 
-    public void render (ShaderProgram shaderProgram){
+    public void render (@NotNull ShaderProgram shaderProgram){
         if (blendingEnabled) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             if (blendSrcFunc != -1) Gdx.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha);

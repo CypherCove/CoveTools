@@ -20,6 +20,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.BufferUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.FloatBuffer;
 
 public class Anisotropy {
@@ -36,7 +38,7 @@ public class Anisotropy {
      * @param anisotropy The anisotropic level to apply. (Will be reduced if device capability is less.
      * @return The anisotropic level that was applied, or `1.0f` if anisotropy is not supported by the device.
      */
-    public static float setTextureAnisotropy (Texture texture, float anisotropy) {
+    public static float setTextureAnisotropy (@NotNull Texture texture, float anisotropy) {
         if (!checkComplete)
             isSupported();
         if (anisotropySupported) {

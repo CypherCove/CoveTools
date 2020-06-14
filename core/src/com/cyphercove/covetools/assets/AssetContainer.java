@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.cyphercove.covetools.assets;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Optional interface for an AssetContainer, providing a loading callback and other functionality for {@link AssignmentAssetManager}.
  */
@@ -23,7 +25,7 @@ public interface AssetContainer {
      * @return A path string that will prepended to all asset paths in this container. If a directory, a trailing slash must be included.
      * May return null to prepend nothing.
      */
-    String getAssetPathPrefix ();
+    @Nullable String getAssetPathPrefix ();
 
     /**
      * Called when the AssetManager has finished loading all assets and populated the annotated asset fields in this container.

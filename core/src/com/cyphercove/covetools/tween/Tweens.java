@@ -24,9 +24,13 @@ import com.badlogic.gdx.utils.Pools;
 import com.cyphercove.covetools.math.Ease;
 import com.cyphercove.covetools.math.Scalar;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class Tweens {
     static private final IntMap<Pool<AccessorTween>> accessorPools = new IntMap<>();
 
+    @NotNull
     static public <T extends Tween> T tween (Class<T> type) {
         Pool<T> pool = Pools.get(type);
         T tween = pool.obtain();
@@ -34,6 +38,7 @@ public class Tweens {
         return tween;
     }
 
+    @NotNull
     static private Pool<AccessorTween> getAccessorPool (final int vectorSize){
         Pool<AccessorTween> pool = accessorPools.get(vectorSize);
         if (pool == null){
@@ -48,6 +53,7 @@ public class Tweens {
         return pool;
     }
 
+    @NotNull
     static public AccessorTween accessorTween (int vectorSize){
         Pool<AccessorTween> pool = getAccessorPool(vectorSize);
         AccessorTween tween = pool.obtain();
@@ -55,14 +61,16 @@ public class Tweens {
         return tween;
     }
 
-    static public AccessorTween accessor (AccessorTween.Accessor target, int vectorSize, float duration, Ease ease){
+    @NotNull
+    static public AccessorTween accessor (@NotNull AccessorTween.Accessor target, int vectorSize, float duration, @Nullable Ease ease){
         return accessorTween(vectorSize)
             .target(target)
             .duration(duration)
             .ease(ease);
     }
 
-    static public ScalarTween to (Scalar target, float endX, float duration, Ease ease){
+    @NotNull
+    static public ScalarTween to (@NotNull Scalar target, float endX, float duration, @Nullable Ease ease){
         return tween(ScalarTween.class)
                 .target(target)
                 .end(endX)
@@ -70,11 +78,13 @@ public class Tweens {
                 .ease(ease);
     }
 
-    static public ScalarTween to (Scalar target, Scalar end, float duration, Ease ease){
+    @NotNull
+    static public ScalarTween to (@NotNull Scalar target, @NotNull Scalar end, float duration, @Nullable Ease ease){
         return to(target, end.x, duration, ease);
     }
 
-    static public Vector2Tween to (Vector2 target, float endX, float endY, float duration, Ease ease){
+    @NotNull
+    static public Vector2Tween to (@NotNull Vector2 target, float endX, float endY, float duration, @Nullable Ease ease){
         return tween(Vector2Tween.class)
                 .target(target)
                 .end(endX, endY)
@@ -82,11 +92,13 @@ public class Tweens {
                 .ease(ease);
     }
 
-    static public Vector2Tween to (Vector2 target, Vector2 end, float duration, Ease ease){
+    @NotNull
+    static public Vector2Tween to (@NotNull Vector2 target, Vector2 end, float duration, @Nullable Ease ease){
         return to(target, end.x, end.y, duration, ease);
     }
 
-    static public Vector3Tween to (Vector3 target, float endX, float endY, float endZ, float duration, Ease ease){
+    @NotNull
+    static public Vector3Tween to (@NotNull Vector3 target, float endX, float endY, float endZ, float duration, @Nullable Ease ease){
         return tween(Vector3Tween.class)
             .target(target)
             .end(endX, endY, endZ)
@@ -94,11 +106,13 @@ public class Tweens {
             .ease(ease);
     }
 
-    static public Vector3Tween to (Vector3 target, Vector3 end, float duration, Ease ease){
+    @NotNull
+    static public Vector3Tween to (@NotNull Vector3 target, @NotNull Vector3 end, float duration, @Nullable Ease ease){
         return to(target, end.x, end.y, end.z, duration, ease);
     }
 
-    static public ColorTween to (Color target, float endR, float endG, float endB, float duration, Ease ease){
+    @NotNull
+    static public ColorTween to (@NotNull Color target, float endR, float endG, float endB, float duration, @Nullable Ease ease){
             return tween(ColorTween.class)
             .target(target)
             .end(endR, endG, endB)
@@ -106,7 +120,8 @@ public class Tweens {
             .ease(ease);
     }
 
-    static public AccessorTween to (AlphaAccessor target, float endA, float duration, Ease ease){
+    @NotNull
+    static public AccessorTween to (@NotNull AlphaAccessor target, float endA, float duration, @Nullable Ease ease){
         AccessorTween tween = accessor(target, 1, duration, ease);
         tween.end(0, endA);
         return tween;

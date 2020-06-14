@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.cyphercove.covetools.tween;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  *
  * @param <T> Tween target type
@@ -25,5 +27,5 @@ public interface TweenInterruptionListener<T> {
      * not be completed. This method must not begin another tween with the same target.
      * @param tweenTarget The target object of the tween that was interrupted.
      */
-    void onTweenInterrupted (T tweenTarget);
+    void onTweenInterrupted (@NotNull T tweenTarget);
 }

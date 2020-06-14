@@ -17,6 +17,8 @@ package com.cyphercove.covetools.tween;
 
 import com.cyphercove.covetools.math.Scalar;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ScalarTween extends Tween<Scalar, ScalarTween> {
 
     public ScalarTween (){
@@ -31,10 +33,13 @@ public class ScalarTween extends Tween<Scalar, ScalarTween> {
         target.x = value;
     }
 
+    @NotNull
     public ScalarTween end (float end){
         setEndValue(0, end);
         return this;
     }
+
+    @NotNull
     public ScalarTween end (Scalar end){
         setEndValue(0, end.x);
         return this;

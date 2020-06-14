@@ -19,6 +19,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectMap;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * An added tween interrupts any tween that is currently running on the same target.
  * <p>A tween that has a sequence chain under it is treated as a single tween on that target.</p>
@@ -37,7 +40,7 @@ public class TweenManager {
      *
      * @param tween The tween or member of a tween chain to start.
      */
-    public void start (Tween tween){
+    public void start (@NotNull Tween tween){
         tween = tween.head; // Any tween in a chain can be submitted but always want to start at the head.
         Object target = tween.getTarget();
         Tween interruptedTween = tweens.get(target);
@@ -80,7 +83,7 @@ public class TweenManager {
      * @param target The target object whose tween or tween chain is to be removed.
      * @return Whether a tween or tween chain existed and was removed.
      */
-    public boolean clearTween (Object target){
+    public boolean clearTween (@Nullable Object target){
         boolean removed = false;
         if (delayedTweens.containsKey(target)){
             Tween tween = delayedTweens.get(target);

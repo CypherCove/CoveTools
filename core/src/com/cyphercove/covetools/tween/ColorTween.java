@@ -17,6 +17,8 @@ package com.cyphercove.covetools.tween;
 
 import com.badlogic.gdx.graphics.Color;
 
+import org.jetbrains.annotations.NotNull;
+
 /** A tween for changing the R, G, and B components of a {@linkplain Color}. It does not modify the
  * alpha component.*/
 public class ColorTween extends Tween<Color, ColorTween> {
@@ -83,6 +85,7 @@ public class ColorTween extends Tween<Color, ColorTween> {
         }
     }
 
+    @NotNull
     public ColorTween end (float r, float g, float b){
         endR = r;
         endG = g;

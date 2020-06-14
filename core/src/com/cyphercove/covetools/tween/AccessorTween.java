@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.cyphercove.covetools.tween;
 
+import org.jetbrains.annotations.NotNull;
+
 public class AccessorTween extends Tween<AccessorTween.Accessor, AccessorTween> {
 
     public interface Accessor {
@@ -40,6 +42,7 @@ public class AccessorTween extends Tween<AccessorTween.Accessor, AccessorTween> 
         target.setValue(vectorIndex, value);
     }
 
+    @NotNull
     public AccessorTween end (int vectorIndex, float value){
         super.setEndValue(vectorIndex, value);
         return this;

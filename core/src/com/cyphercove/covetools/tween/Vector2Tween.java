@@ -17,6 +17,8 @@ package com.cyphercove.covetools.tween;
 
 import com.badlogic.gdx.math.Vector2;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Vector2Tween extends Tween<Vector2, Vector2Tween> {
 
     public Vector2Tween (){
@@ -39,13 +41,15 @@ public class Vector2Tween extends Tween<Vector2, Vector2Tween> {
         }
     }
 
+    @NotNull
     public Vector2Tween end (float endX, float endY){
         setEndValue(0, endX);
         setEndValue(1, endY);
         return this;
     }
 
-    public Vector2Tween end (Vector2 end){
+    @NotNull
+    public Vector2Tween end (@NotNull Vector2 end){
         setEndValue(0, end.x);
         setEndValue(1, end.y);
         return this;

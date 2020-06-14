@@ -17,6 +17,8 @@ package com.cyphercove.covetools.utils;
 
 import com.badlogic.gdx.graphics.Color;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ColorUtil {
 
     private static final float[] hsv = new float[3];
@@ -26,7 +28,7 @@ public class ColorUtil {
      * @return The HSV-model hue of the RGB components, as a value between 0 and 1, divided evenly from red to green to blue and back to
      * red. If the color is desaturated, the hue is 0.
      */
-    public static float getHue(Color color) {
+    public static float getHue(@NotNull Color color) {
         float r = color.r, g = color.g, b = color.b;
         float max = Math.max(b, Math.max(r, g));
         float min = Math.min(b, Math.min(r, g));
@@ -54,7 +56,7 @@ public class ColorUtil {
      * @param color The color to determine the saturation of.
      * @return The HSV-model saturation of the RGB components, as a value between 0 and 1, where 1 is fully saturated.
      */
-    public static float getSaturation(Color color) {
+    public static float getSaturation(@NotNull Color color) {
         float r = color.r, g = color.g, b = color.b;
         float max = Math.max(b, Math.max(r, g));
         float min = Math.min(b, Math.min(r, g));
@@ -67,7 +69,7 @@ public class ColorUtil {
      * @param color The color to determine the value of.
      * @return The HSV-model value of the RGB components, as a value between 0 and 1, where 1 is fully bright.
      */
-    public static float getValue(Color color) {
+    public static float getValue(@NotNull Color color) {
         return Math.max(color.b, Math.max(color.r, color.g));
     }
 
@@ -77,7 +79,8 @@ public class ColorUtil {
      * @param amount How much to shift The hue of the resulting color.
      * @return The modified input color.
      */
-    public static Color shiftHue(Color color, float amount) {
+    @NotNull
+    public static Color shiftHue(@NotNull Color color, float amount) {
         color.toHsv(hsv);
         hsv[0] = (hsv[0] + amount) % 360f;
         return color.fromHsv(hsv);
@@ -90,7 +93,8 @@ public class ColorUtil {
      * @param hue The hue of the resulting color.
      * @return The modified input color.
      */
-    public static Color setHue(Color color, float hue) {
+    @NotNull
+    public static Color setHue(@NotNull Color color, float hue) {
         color.toHsv(hsv);
         hsv[0] = hue;
         return color.fromHsv(hsv);
@@ -102,7 +106,8 @@ public class ColorUtil {
      * @param scale How much to multiply the saturation of the color by.
      * @return The modified input color.
      */
-    public static Color scaleSaturation(Color color, float scale) {
+    @NotNull
+    public static Color scaleSaturation(@NotNull Color color, float scale) {
         color.toHsv(hsv);
         hsv[1] = Math.min(1, scale * hsv[1]);
         return color.fromHsv(hsv);
@@ -114,7 +119,8 @@ public class ColorUtil {
      * @param saturation The saturation of the resulting color, from 0 to 1.
      * @return The modified input color.
      */
-    public static Color setSaturation(Color color, float saturation) {
+    @NotNull
+    public static Color setSaturation(@NotNull Color color, float saturation) {
         color.toHsv(hsv);
         hsv[1] = saturation;
         return color.fromHsv(hsv);
@@ -126,7 +132,8 @@ public class ColorUtil {
      * @param scale How much to multiply the value of the color by.
      * @return The modified input color.
      */
-    public static Color scaleValue(Color color, float scale) {
+    @NotNull
+    public static Color scaleValue(@NotNull Color color, float scale) {
         color.toHsv(hsv);
         hsv[2] = Math.min(1, scale * hsv[2]);
         return color.fromHsv(hsv);
@@ -138,13 +145,14 @@ public class ColorUtil {
      * @param value The value of the resulting color, from 0 to 1.
      * @return The modified input color.
      */
-    public static Color setValue(Color color, float value) {
+    @NotNull
+    public static Color setValue(@NotNull Color color, float value) {
         color.toHsv(hsv);
         hsv[2] = value;
         return color.fromHsv(hsv);
     }
 
-    public static final Color TMP = new Color();
+    private static final Color TMP = new Color();
     /** Interpolates between two colors using the RGB model, and then adjusts the saturation of the
      * result to the interpolated saturation of the source colors.
      * @param result The color to place the result in. Can be one of the inputs
@@ -152,7 +160,8 @@ public class ColorUtil {
      * @param two The end color for the blend.
      * @param amount The progress of the blend, from 0 to 1.
      * @return The result*/
-    public static Color blendRGBWithSaturation(Color result, Color one, Color two, float amount){
+    @NotNull
+    public static Color blendRGBWithSaturation(@NotNull Color result, @NotNull Color one, @NotNull Color two, float amount){
         TMP.set(one).lerp(two, amount);
         result.a = TMP.a;
         float s1 = getSaturation(one);

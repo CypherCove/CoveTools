@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.cyphercove.covetools.tween;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  *
  * @param <T> Tween target type
@@ -23,5 +25,5 @@ public interface TweenCompletionListener<T> {
     /** Called when the associated tween completes.
      * @param tweenTarget The target object of the tween that was completed.
      */
-    void onTweenComplete (T tweenTarget);
+    void onTweenComplete (@NotNull T tweenTarget);
 }
