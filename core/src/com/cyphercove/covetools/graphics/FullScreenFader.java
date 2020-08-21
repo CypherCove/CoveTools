@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2015 Cypher Cove, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,8 @@
  ******************************************************************************/
 package com.cyphercove.covetools.graphics;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Disposable;
@@ -101,10 +97,9 @@ public class FullScreenFader implements Disposable{
 
         if (shader==null)
             createShader();
-        shader.begin();
+        shader.bind();
         shader.setUniformf(u_color, color);
         quad.render(shader);
-        shader.end();
 
         if (delay <= 0)
             elapsed += deltaTime;

@@ -1,4 +1,6 @@
 # 1.2.3 (pending next release)
+ - Update to LibGDX 1.9.11
+ - Deprecated Anisotropy, as its features are now available from Texture directly.
 
 # 1.2.2
  - Add TextureAtlasCacher.

@@ -9,7 +9,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
         classpath 'digital.wup:android-maven-publish:3.6.2'
     }
 }
@@ -23,7 +23,7 @@ allprojects {
 
     ext {
         appName = "CoveTools"
-        gdxVersion = '1.9.10'
+        gdxVersion = '1.9.11'
         exp4jVersion = '0.4.8'
     }
 

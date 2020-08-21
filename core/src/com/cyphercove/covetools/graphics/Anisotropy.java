@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2015 Cypher Cove, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.FloatBuffer;
 
+/**
+ * @deprecated The features of this class are now available from {@linkplain Texture} directly.
+ */
+@Deprecated
 public class Anisotropy {
 
     private static boolean anisotropySupported = false;
@@ -37,7 +41,9 @@ public class Anisotropy {
      * @param texture    The texture to apply anisotropy to.
      * @param anisotropy The anisotropic level to apply. (Will be reduced if device capability is less.
      * @return The anisotropic level that was applied, or `1.0f` if anisotropy is not supported by the device.
+     * @deprecated Use {@link Texture#setAnisotropicFilter(float)} instead.
      */
+    @Deprecated
     public static float setTextureAnisotropy (@NotNull Texture texture, float anisotropy) {
         if (!checkComplete)
             isSupported();
@@ -53,7 +59,10 @@ public class Anisotropy {
 
     /**
      * @return Whether the device supports anisotropic filtering.
+     * @deprecated Use {@link Texture#getMaxAnisotropicFilterLevel()}. If supported, the value will
+     * be greater than 1.
      */
+    @Deprecated
     public static boolean isSupported () {
         GL20 gl = Gdx.gl;
         if (gl != null) {
@@ -72,7 +81,9 @@ public class Anisotropy {
 
     /**
      * @return The max anisotropic filtering level supported by device, or 1 if it isn't supported.
+     * @deprecated Use {@link Texture#getMaxAnisotropicFilterLevel()}.
      */
+    @Deprecated
     public static float getMaxAnisotropySupported () {
         if (!checkComplete)
             isSupported();

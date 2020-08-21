@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2019 Cypher Cove, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,7 +185,7 @@ public class GaussianBlur implements Disposable {
 
         if (keepInverseTarget) {
             heldBufferSet = currentBufferSet;
-        } else {
+        } else if (currentBufferSet != null){
             currentBufferSet.dispose();
         }
 
@@ -198,9 +198,8 @@ public class GaussianBlur implements Disposable {
 
         if (try8888) {
             try {
-                FrameBuffer frameBuffer = new FrameBuffer(
+                return new FrameBuffer(
                         Pixmap.Format.RGBA8888, width, height, hasDepth);
-                return frameBuffer;
             } catch (IllegalStateException e) {
                 try8888 = false;
                 Gdx.app.log("GaussianBlur.getLinearFrameBuffer",
@@ -316,11 +315,9 @@ public class GaussianBlur implements Disposable {
     }
 
     public void begin () {
-
         if (currentBufferSet == null)
             throw new GdxRuntimeException("begin() called before resize().");
 
-        GL20 gl = Gdx.gl20;
         currentBufferSet.initialTarget.begin();
     }
 
