@@ -1,3 +1,6 @@
+# 1.2.4
+ - 
+
 # 1.2.3
  - Update to LibGDX 1.9.11
  - Deprecated `Anisotropy`, as its features are now available from Texture directly.
