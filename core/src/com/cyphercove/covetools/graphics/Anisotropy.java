@@ -20,8 +20,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.BufferUtils;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.nio.FloatBuffer;
 
 /**
@@ -44,7 +42,7 @@ public class Anisotropy {
      * @deprecated Use {@link Texture#setAnisotropicFilter(float)} instead.
      */
     @Deprecated
-    public static float setTextureAnisotropy (@NotNull Texture texture, float anisotropy) {
+    public static float setTextureAnisotropy (Texture texture, float anisotropy) {
         if (!checkComplete)
             isSupported();
         if (anisotropySupported) {

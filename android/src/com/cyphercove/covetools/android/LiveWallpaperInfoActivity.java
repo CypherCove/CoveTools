@@ -17,6 +17,7 @@ package com.cyphercove.covetools.android;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Service;
 import android.app.WallpaperInfo;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
@@ -37,7 +38,7 @@ public abstract class LiveWallpaperInfoActivity extends Activity {
 	/** @return The resource ID for the message that is shown if the user is brought to the live wallpaper chooser list. */
 	protected abstract int getWallpaperChooserToastStringResource();
 	/** @return The class representing the live wallpaper. */
-	protected abstract Class getWallpaperServiceClass();
+	protected abstract Class<? extends Service> getWallpaperServiceClass();
 	/** @return The resource ID for the message that is shown if the device does not support live wallpapers. */
 	protected abstract int getNoLiveWallpapersToastStringResource();
 	

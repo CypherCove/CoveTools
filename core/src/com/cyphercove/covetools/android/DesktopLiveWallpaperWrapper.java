@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2017 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,8 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 
-import org.jetbrains.annotations.NotNull;
-
-/** Wrap a {@link LiveWallpaperListener} in a DesktopLiveWallpaperWrapper when passing it to
+/**
+ * Wrap a {@link LiveWallpaperListener} in a DesktopLiveWallpaperWrapper when passing it to
  * {@code initialize()} to enable a fake version of the {@code xOffset} features for desktop testing.
  *
  * @author cypherdare
@@ -30,7 +29,7 @@ public class DesktopLiveWallpaperWrapper implements ApplicationListener {
 
     private LiveWallpaperListener liveWallpaper;
 
-    public DesktopLiveWallpaperWrapper(@NotNull LiveWallpaperListener liveWallpaper) {
+    public DesktopLiveWallpaperWrapper(LiveWallpaperListener liveWallpaper) {
         this.liveWallpaper = liveWallpaper;
     }
 

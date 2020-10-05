@@ -24,8 +24,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.*;
 import com.cyphercove.covetools.assets.Asset;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Convenience methods for disposing and nulling fields for {@link Disposable} objects.
  * <p>
@@ -41,7 +39,7 @@ public class Disposal {
      * Disposables annotated with {@link Skip} or {@link Asset} are not disposed.
      * @param object The object containing references to Disposable objects.
      */
-    public static void clear (@NotNull Object object) {
+    public static void clear (Object object) {
         clearExcept(object);
     }
 
@@ -51,7 +49,7 @@ public class Disposal {
      * @param object The object containing references to Disposable objects.
      * @param skippedGroup Fields annotated with {@link Group} with matching numbers will not be disposed.
      */
-    public static void clearExcept (@NotNull Object object, int... skippedGroup){
+    public static void clearExcept (Object object, int... skippedGroup){
         Field[] fields = ClassReflection.getDeclaredFields(object.getClass());
         boolean checkGroups = skippedGroup != null && skippedGroup.length > 0;
         outer:
@@ -81,7 +79,7 @@ public class Disposal {
      * @param object The object containing references to Disposable objects.
      * @param groupNumber The {@link Group} value(s) of fields that will be disposed.
      */
-    public static void clear (@NotNull Object object, int... groupNumber){
+    public static void clear (Object object, int... groupNumber){
         if (groupNumber == null || groupNumber.length == 0)
             return;
         Field[] fields = ClassReflection.getDeclaredFields(object.getClass());
@@ -104,7 +102,7 @@ public class Disposal {
         }
     }
 
-    private static void clearFieldIfDisposable (@NotNull Object object, @NotNull Field field){
+    private static void clearFieldIfDisposable (Object object, Field field){
         makeAccessible(field);
         Object referenced = null;
         try {

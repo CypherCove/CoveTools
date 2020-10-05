@@ -25,8 +25,6 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +70,7 @@ public final class TextureAtlasCacher {
      * @param target     The target object whose fields will be assigned region references.
      * @param logUnfound If true, logs any regions for which no matching field was found.
      */
-    public static void cacheRegions (@NotNull TextureAtlas atlas, @NotNull Object target, boolean logUnfound) {
+    public static void cacheRegions (TextureAtlas atlas, Object target, boolean logUnfound) {
         final Array<String> missingNames = new Array<>();
         final Class<?> targetType = target.getClass();
         final Field[] fields = ClassReflection.getDeclaredFields(targetType);

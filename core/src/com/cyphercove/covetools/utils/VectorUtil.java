@@ -20,41 +20,34 @@ import static com.badlogic.gdx.math.MathUtils.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.jetbrains.annotations.NotNull;
-
 public class VectorUtil {
     private static final Vector3 tmp1 = new Vector3();
     private static final Vector3 tmp2 = new Vector3();
 
-    @NotNull
-    public static Vector3 getPlaneIntersection(@NotNull Vector3 vec, @NotNull Vector3 planeNormal, @NotNull Vector3 p2, @NotNull Vector3 p0) {
+    public static Vector3 getPlaneIntersection(Vector3 vec, Vector3 planeNormal, Vector3 p2, Vector3 p0) {
         float t = planeNormal.dot(tmp1.set(p2).sub(p0)) / planeNormal.dot(vec);
         return tmp1.set(p0).add(tmp2.set(vec).scl(t));
     }
 
-    @NotNull
-    public static Vector3 rotateX(@NotNull Vector3 vec, float angRad) {
+    public static Vector3 rotateX(Vector3 vec, float angRad) {
         float sin = sin(angRad);
         float cos = cos(angRad);
         return vec.set(vec.x, vec.y * cos - vec.z * sin, vec.z * cos + vec.y * sin);
     }
 
-    @NotNull
-    public static Vector3 rotateY(@NotNull Vector3 vec, float angRad) {
+    public static Vector3 rotateY(Vector3 vec, float angRad) {
         float sin = sin(angRad);
         float cos = cos(angRad);
         return vec.set(vec.z * sin + vec.x * cos, vec.y, vec.z * cos - vec.x * sin);
     }
 
-    @NotNull
-    public static Vector3 rotateZ(@NotNull Vector3 vec, float angRad) {
+    public static Vector3 rotateZ(Vector3 vec, float angRad) {
         float sin = sin(angRad);
         float cos = cos(angRad);
         return vec.set(vec.x * cos - vec.y * sin, vec.x * sin + vec.y * cos, vec.z);
     }
 
-    @NotNull
-    public static Vector3 rotate(@NotNull Vector3 vec, @NotNull Vector3 axis, float angRad) {
+    public static Vector3 rotate(Vector3 vec, Vector3 axis, float angRad) {
         float sin = sin(angRad);
         float cos = cos(angRad);
         float com = (axis.x * vec.x + axis.y * vec.y + axis.z * vec.z) * (1.0F - cos);
@@ -67,8 +60,7 @@ public class VectorUtil {
         return vec;
     }
 
-    @NotNull
-    public static Vector3 rotateDeg(@NotNull Vector3 vec, @NotNull Vector3 axis, float angDeg) {
+    public static Vector3 rotateDeg(Vector3 vec, Vector3 axis, float angDeg) {
         float sin = sinDeg(angDeg);
         float cos = cosDeg(angDeg);
         float com = (axis.x * vec.x + axis.y * vec.y + axis.z * vec.z) * (1.0F - cos);
@@ -81,8 +73,7 @@ public class VectorUtil {
         return vec;
     }
 
-    @NotNull
-    public static Vector3 rotate(@NotNull Vector3 vec, @NotNull Vector3 axis, float sin, float cos) {
+    public static Vector3 rotate(Vector3 vec, Vector3 axis, float sin, float cos) {
         float x0, y0, z0;
         if(axis.z == 1.0F) {
             x0 = vec.x * cos - vec.y * sin;
@@ -101,19 +92,19 @@ public class VectorUtil {
         return vec;
     }
 
-    public static float getAngleRad(@NotNull Vector3 v1, @NotNull Vector3 v2) {
+    public static float getAngleRad(Vector3 v1, Vector3 v2) {
         return (float)Math.acos((double)v1.dot(v2));
     }
 
-    public static float getAngleDeg(@NotNull Vector3 v1, @NotNull Vector3 v2) {
+    public static float getAngleDeg(Vector3 v1, Vector3 v2) {
         return (float)Math.acos((double)v1.dot(v2)) * 57.295776F;
     }
 
-    public static Vector2 averageInto(@NotNull Vector2 first, @NotNull Vector2 second) {
+    public static Vector2 averageInto(Vector2 first, Vector2 second) {
         return first.set((first.x + second.x) / 2.0F, (first.y + second.y) / 2.0F);
     }
 
-    public static Vector3 averageInto(@NotNull Vector3 first, @NotNull Vector3 second) {
+    public static Vector3 averageInto(Vector3 first, Vector3 second) {
         return first.set((first.x + second.x) / 2.0F, (first.y + second.y) / 2.0F, (first.z + second.z) / 2.0F);
     }
 }

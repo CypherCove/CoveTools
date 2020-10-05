@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2017 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,41 +35,6 @@ import com.badlogic.gdx.math.MathUtils;
  */
 public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpaperListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
-
-    /**
-     * A listener that provides convenient non-core project access to events on the GLThread
-     */
-    public interface WallpaperEventListener {
-        /**
-         * Called immediately after {@code create()} is called on the live wallpaper.
-         *
-         * @param liveWallpaper The wrapped live wallpaper.
-         */
-        void onPostCreate(LiveWallpaperListener liveWallpaper);
-
-        /**
-         * Called once per render loop immediately before {@code render()} is called on the live wallpaper.
-         *
-         * @param liveWallpaper The wrapped live wallpaper.
-         * @param deltaTime     The frame delta time reported by LibGDX.
-         */
-        void onRender(LiveWallpaperListener liveWallpaper, float deltaTime);
-
-        /**
-         * Called on the GL thread immediately after the SharedPreferences have changed.
-         *
-         * @param liveWallpaper The wrapped live wallpaper.
-         */
-        void onSettingsChanged(LiveWallpaperListener liveWallpaper);
-
-        /**
-         * Called when the user taps multiple times in the same spot within a small time window.
-         *
-         * @param tapCount The number of taps that occurred in the same location.
-         * @return True if the tap count should be reset.
-         */
-        boolean onMultiTap(int tapCount);
-    }
 
     private LiveWallpaperListener liveWallpaper;
     private SharedPreferences sharedPreferences;

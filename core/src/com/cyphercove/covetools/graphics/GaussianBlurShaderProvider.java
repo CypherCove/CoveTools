@@ -20,9 +20,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 /**
  * Provides shaders for {@linkplain GaussianBlur}. A single instance can be used for multiple
  * GaussianBlur objects to avoid compiling duplicate shaders.
@@ -43,7 +40,7 @@ public class GaussianBlurShaderProvider {
 
     private final IntMap<UniqueShader> blurPassShaderPrograms = new IntMap<>(5);
 
-    public @NotNull ShaderProgram obtainBlurPassShaderProgram(int maxRadius){
+    public ShaderProgram obtainBlurPassShaderProgram(int maxRadius){
         UniqueShader uniqueShader = blurPassShaderPrograms.get(maxRadius);
         if (uniqueShader != null){
             uniqueShader.refCount++;
@@ -126,7 +123,7 @@ public class GaussianBlurShaderProvider {
         return shaderProgram;
     }
 
-    public boolean disposeShader(@Nullable ShaderProgram shaderProgram){
+    public boolean disposeShader(ShaderProgram shaderProgram){
         if (shaderProgram == null)
             return false;
 

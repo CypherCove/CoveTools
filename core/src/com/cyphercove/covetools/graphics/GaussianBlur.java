@@ -26,9 +26,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 /** Used to draw a scene, apply Gaussian blur to it, and draw it full screen. Useful for post processing
  * effects such as bloom, 2D lightmapping, and depth of field.
  */
@@ -110,7 +107,7 @@ public class GaussianBlur implements Disposable {
      *                            avoid redundant ShaderPrograms from being compiled.
      */
     public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget,
-                         @NotNull GaussianBlurShaderProvider shaderProvider) {
+                         GaussianBlurShaderProvider shaderProvider) {
         if (initialAndMaxRadius < 0 || initialAndMaxRadius > MAX_RADIUS) {
             throw new GdxRuntimeException(
                     "Radius must be between 0 and " + MAX_RADIUS + " inclusive.");
@@ -374,7 +371,7 @@ public class GaussianBlur implements Disposable {
      *                     as required by the internal SpriteBatch. If null, the default SpriteBatch
      *                     shader is used.
      */
-    public void beginRender (@Nullable ShaderProgram customShader) {
+    public void beginRender (ShaderProgram customShader) {
         spriteBatch.setShader(customShader);
         if (blendingEnabled) {
             spriteBatch.setBlendFunction(blendSrcFunc, blendDstFunc);

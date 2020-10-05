@@ -22,8 +22,6 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 
-import org.jetbrains.annotations.NotNull;
-
 public class ShaderProgramReloader {
 
     /**
@@ -37,7 +35,7 @@ public class ShaderProgramReloader {
      * @param assetContainer The asset container whose shader programs are to be reloaded.
      * @return Whether ShaderPrograms were reloaded.
      */
-    public static boolean reloadAllShadersGuarded (@NotNull AssignmentAssetManager assetManager, @NotNull Object assetContainer) {
+    public static boolean reloadAllShadersGuarded (AssignmentAssetManager assetManager, Object assetContainer) {
 
         Class<?> containerType = assetContainer.getClass();
         Field[] fields = ClassReflection.getDeclaredFields(containerType);

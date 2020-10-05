@@ -72,7 +72,6 @@ project(":core") {
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         implementation "net.objecthunter:exp4j:$exp4jVersion"
-        implementation 'org.jetbrains:annotations:16.0.2'
     }
 }
 
