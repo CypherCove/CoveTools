@@ -16,7 +16,7 @@
 package com.cyphercove.covetools.android;
 
 /**
- * A listener that provides convenient non-core project access to events on the GLThread
+ * A listener that provides convenient non-core project access to events on the GLThread.
  */
 public interface WallpaperEventListener {
     /**
@@ -30,7 +30,7 @@ public interface WallpaperEventListener {
      * Called once per render loop immediately before {@code render()} is called on the live wallpaper.
      *
      * @param liveWallpaper The wrapped live wallpaper.
-     * @param deltaTime     The frame delta time reported by LibGDX.
+     * @param deltaTime     The frame delta time reported by libGDX.
      */
     void onRender(LiveWallpaperListener liveWallpaper, float deltaTime);
 
