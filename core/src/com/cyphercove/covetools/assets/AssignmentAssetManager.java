@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2017 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,9 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.assets.loaders.ShaderProgramLoader;
+import com.badlogic.gdx.assets.loaders.TextureLoader;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -49,20 +52,20 @@ public class AssignmentAssetManager extends AssetManager {
     private final ObjectMap<Object, ObjectMap<Field, AssetDescriptor<?>>> containersFieldsToAssets = new ObjectMap<>();
     private final ObjectMap<Object, ObjectMap<Object[], AssetDescriptor<?>[]>> containersFieldsToAssetArrays = new ObjectMap<>();
 
-    public AssignmentAssetManager () {
+    public AssignmentAssetManager() {
         super();
     }
 
-    public AssignmentAssetManager (FileHandleResolver resolver, boolean defaultLoaders) {
+    public AssignmentAssetManager(FileHandleResolver resolver, boolean defaultLoaders) {
         super(resolver, defaultLoaders);
     }
 
-    public AssignmentAssetManager (FileHandleResolver resolver) {
+    public AssignmentAssetManager(FileHandleResolver resolver) {
         super(resolver);
     }
 
     @Override
-    public synchronized boolean update () {
+    public synchronized boolean update() {
         boolean done = super.update();
         if (done) {
             // assign references to Asset fields of queuedContainers
@@ -97,43 +100,75 @@ public class AssignmentAssetManager extends AssetManager {
     }
 
     /**
-     * Queues the corresponding assets of the {@link Asset} and {@link Assets} annotated fields of the specified container for loading. When loading
-     * is complete, the fields will automatically reference the loaded assets.
+     * Queues the corresponding assets of the {@link Asset} and {@link Assets} annotated fields of
+     * the specified container for loading. When loading is complete, the fields will automatically
+     * reference the loaded assets.
+     * <p>
+     * Fields that are not null are skipped to avoid the possibility of loading duplicate assets or
+     * failing to dispose of existing assets.
      *
-     * @param assetContainer An object containing fields annotated with {@link Asset} and {@link Assets}. May optionally implement
-     *                       {@link AssetContainer} for further customization.
+     * @param assetContainer An object containing fields annotated with {@link Asset} and
+     *                       {@link Assets}. May optionally implement {@link AssetContainer} for
+     *                       further customization.
      */
-    public synchronized void loadAssetFields (Object assetContainer) {
+    public synchronized void loadAssetFields(Object assetContainer) {
         if (assetContainer == null)
             throw new GdxRuntimeException("Asset container cannot be null");
         if (queuedContainers.contains(assetContainer) || loadedContainers.contains(assetContainer))
             return;
         Class<?> containerType = assetContainer.getClass();
-        String pathPrepend = null;
+        String pathPrepend = "";
         if (assetContainer instanceof AssetContainer) {
             pathPrepend = ((AssetContainer) assetContainer).getAssetPathPrefix();
-            if (pathPrepend != null && pathPrepend.equals(""))
-                pathPrepend = null;
         }
         Field[] fields = ClassReflection.getDeclaredFields(containerType);
         ObjectMap<Field, AssetDescriptor<?>> containerAssets = new ObjectMap<Field, AssetDescriptor<?>>();
         ObjectMap<Object[], AssetDescriptor<?>[]> containerAssetArrays = new ObjectMap<Object[], AssetDescriptor<?>[]>();
         for (Field field : fields) {
             com.badlogic.gdx.utils.reflect.Annotation assetAnnotation = field.getDeclaredAnnotation(Asset.class);
-            if (assetAnnotation != null) {
+            com.badlogic.gdx.utils.reflect.Annotation shaderProgramAssetAnnotation = field.getDeclaredAnnotation(ShaderProgramAsset.class);
+            com.badlogic.gdx.utils.reflect.Annotation textureAssetAnnotation = field.getDeclaredAnnotation(TextureAsset.class);
+            com.badlogic.gdx.utils.reflect.Annotation assetsAnnotation = field.getDeclaredAnnotation(Assets.class);
+
+            if (assetAnnotation != null ||
+                    shaderProgramAssetAnnotation != null ||
+                    textureAssetAnnotation != null ||
+                    assetsAnnotation != null) {
+                try {
+                    makeAccessible(field);
+                    if (field.get(assetContainer) != null)
+                        continue;
+                } catch (ReflectionException e) {
+                    throw new GdxRuntimeException("Cannot retrieve value of field " + field);
+                }
+            }
+
+            if (assetAnnotation != null ||
+                    shaderProgramAssetAnnotation != null ||
+                    textureAssetAnnotation != null) {
                 Class<?> assetType = field.getType();
-                Asset asset = assetAnnotation.getAnnotation(Asset.class);
-                String fileName = asset.value();
-                if (pathPrepend != null)
-                    fileName = pathPrepend + fileName;
-                AssetLoaderParameters<?> parameter = findParameter(assetContainer, fields, asset.parameter(), field.getName());
+                String fileName;
+                AssetLoaderParameters<?> parameter;
+                if (assetAnnotation != null) {
+                    Asset asset = assetAnnotation.getAnnotation(Asset.class);
+                    fileName = pathPrepend + asset.value();
+                    parameter = findParameter(assetContainer, fields, asset.parameter(), field.getName());
+                } else if (shaderProgramAssetAnnotation != null) {
+                    ShaderProgramAsset asset = shaderProgramAssetAnnotation.getAnnotation(ShaderProgramAsset.class);
+                    fileName = pathPrepend + asset.value();
+                    parameter = generateParameter(pathPrepend, asset);
+                } else {
+                    TextureAsset asset = textureAssetAnnotation.getAnnotation(TextureAsset.class);
+                    fileName = pathPrepend + asset.value();
+                    parameter = generateParameter(asset);
+                }
                 @SuppressWarnings({"rawtypes", "unchecked"})
                 AssetDescriptor<?> assetDescriptor = new AssetDescriptor(fileName, assetType, parameter);
                 load(assetDescriptor);
                 containerAssets.put(field, assetDescriptor);
                 continue;
             }
-            com.badlogic.gdx.utils.reflect.Annotation assetsAnnotation = field.getDeclaredAnnotation(Assets.class);
+
             if (assetsAnnotation != null) {
                 Class<?> assetType = field.getType().getComponentType();
                 if (assetType == null) {
@@ -148,7 +183,7 @@ public class AssignmentAssetManager extends AssetManager {
                 AssetDescriptor<?>[] assetDescriptors = new AssetDescriptor[fileNames.length];
 
                 String[] parameters = assets.parameters();
-                if (parameters != null && parameters.length > 0) {
+                if (parameters.length > 0) {
                     if (parameters.length != fileNames.length)
                         throw new GdxRuntimeException(String.format("For asset array %s, number of parameters does not match number of file name values.", field.getName()));
                     for (int i = 0; i < assetDescriptors.length; i++) {
@@ -177,7 +212,6 @@ public class AssignmentAssetManager extends AssetManager {
                     throw new GdxRuntimeException("Failed to assign generated array for " + field.getName(), e);
                 }
                 containerAssetArrays.put(containerArray, assetDescriptors);
-                continue;
             }
         }
         containersFieldsToAssets.put(assetContainer, containerAssets);
@@ -189,16 +223,16 @@ public class AssignmentAssetManager extends AssetManager {
      * @return The AssetLoaderParameters matching the given field name, or null if the field name is "" or null.
      * @throws GdxRuntimeException if the field value is null, the named field does not reference an AssetLoaderParameters, or the field does not exist.
      */
-    AssetLoaderParameters<?> findParameter (Object container, Field[] containerFields, String parameterFieldName, String annotatedFieldName) {
+    AssetLoaderParameters<?> findParameter(Object container, Field[] containerFields, String parameterFieldName, String annotatedFieldName) {
         if (parameterFieldName == null || parameterFieldName.equals(""))
             return null;
 
-        Field parameterField = null;
+        Field parameterField;
 
         if (parameterFieldName.contains(".")) { // assume fully qualified, statically accessed
             int lastDotIndex = parameterFieldName.lastIndexOf(".");
             String className = parameterFieldName.substring(0, lastDotIndex);
-            parameterFieldName = parameterFieldName.substring(lastDotIndex + 1, parameterFieldName.length());
+            parameterFieldName = parameterFieldName.substring(lastDotIndex + 1);
             try {
                 Class<?> parameterContainerClass = ClassReflection.forName(className);
                 parameterField = ClassReflection.getDeclaredField(parameterContainerClass, parameterFieldName);
@@ -230,7 +264,7 @@ public class AssignmentAssetManager extends AssetManager {
         throw new GdxRuntimeException(String.format("The specified parameter %s for asset %s does not exist.", parameterFieldName, annotatedFieldName));
     }
 
-    private void makeAccessible (Field field) {
+    private void makeAccessible(Field field) {
         if (!field.isAccessible()) {
             try {
                 field.setAccessible(true);
@@ -248,7 +282,7 @@ public class AssignmentAssetManager extends AssetManager {
      *
      * @param assetContainer An object containing asset references that was previously loaded with {@link #loadAssetFields(Object)}.
      */
-    public void unloadAssetFields (Object assetContainer) {
+    public void unloadAssetFields(Object assetContainer) {
         unloadAssetFields(assetContainer, null);
     }
 
@@ -261,7 +295,7 @@ public class AssignmentAssetManager extends AssetManager {
      * @param assetContainer An object containing asset references that was previously loaded with {@link #loadAssetFields(Object)}.
      * @param assetType      Only assets of the corresponding type will be unloaded.
      */
-    public void unloadAssetFields (Object assetContainer, Class assetType) {
+    public void unloadAssetFields(Object assetContainer, Class<?> assetType) {
         boolean isQueuedOrLoaded = false;
         if (queuedContainers.contains(assetContainer)) {
             queuedContainers.remove(assetContainer);
@@ -318,7 +352,7 @@ public class AssignmentAssetManager extends AssetManager {
         }
     }
 
-    private boolean isReferenced (AssetDescriptor<?> asset) {
+    private boolean isReferenced(AssetDescriptor<?> asset) {
         // Checks equality of file names of the AssetDescriptor (same behavior as AssetManager)
         for (ObjectMap<Field, AssetDescriptor<?>> assets : containersFieldsToAssets.values()) {
             for (AssetDescriptor<?> assetDescriptor : assets.values())
@@ -335,6 +369,39 @@ public class AssignmentAssetManager extends AssetManager {
         }
 
         return false;
+    }
+
+    private static ShaderProgramLoader.ShaderProgramParameter generateParameter(String pathPrepend, ShaderProgramAsset asset) {
+        ShaderProgramLoader.ShaderProgramParameter parameter =
+                new ShaderProgramLoader.ShaderProgramParameter();
+        if (!asset.vertexFile().equals("")) {
+            parameter.vertexFile = pathPrepend + asset.vertexFile();
+        }
+        if (!asset.fragmentFile().equals("")) {
+            parameter.fragmentFile = pathPrepend + asset.fragmentFile();
+        }
+        parameter.logOnCompileFailure = asset.logOnCompileFailure;
+        if (!asset.prependAllCode().equals("")) {
+            parameter.prependVertexCode = asset.prependAllCode();
+            parameter.prependFragmentCode = asset.prependAllCode();
+        }
+        if (!asset.prependVertexCode().equals("")) {
+            parameter.prependVertexCode = parameter.prependVertexCode + asset.prependVertexCode();
+        }
+        if (!asset.prependFragmentCode().equals("")) {
+            parameter.prependFragmentCode = parameter.prependFragmentCode + asset.prependFragmentCode();
+        }
+        return parameter;
+    }
+
+    private static TextureLoader.TextureParameter generateParameter(TextureAsset asset) {
+        TextureLoader.TextureParameter parameter = new TextureLoader.TextureParameter();
+        parameter.format = asset.format();
+        parameter.minFilter = asset.filter().minFilter;
+        parameter.magFilter = asset.filter().magFilter;
+        parameter.genMipMaps = asset.filter().usesMipMaps;
+        parameter.wrapU = parameter.wrapV = asset.wrap();
+        return parameter;
     }
 
 }

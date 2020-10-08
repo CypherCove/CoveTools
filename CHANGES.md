@@ -1,5 +1,6 @@
 # 1.2.4
- - 
+ - **[Breaking]** `AssignmentAssetManager.loadAssetFields()` now skips fields that have non-null values.
+ - Added `ShaderProgramAsset` and `TextureAsset` for creating loading parameters within the annotation.
 
 # 1.2.3
  - Update to LibGDX 1.9.11
