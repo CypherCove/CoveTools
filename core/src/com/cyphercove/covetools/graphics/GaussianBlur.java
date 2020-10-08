@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-
 package com.cyphercove.covetools.graphics;
 
 import com.badlogic.gdx.Gdx;
@@ -26,7 +25,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-/** Used to draw a scene, apply Gaussian blur to it, and draw it full screen. Useful for post processing
+/**
+ * Used to draw a scene, apply Gaussian blur to it, and draw it full screen. Useful for post processing
  * effects such as bloom, 2D lightmapping, and depth of field.
  */
 public class GaussianBlur implements Disposable {
@@ -71,10 +71,11 @@ public class GaussianBlur implements Disposable {
     private float weightAtCenter;
     private float[] weights;
     private float sigma = -1;
+    private boolean wasDepthTestEnabled;
 
     private final Matrix4 fboToSceneProjectionMatrix = new Matrix4();
 
-    private GaussianBlurShaderProvider shaderProvider;
+    private final GaussianBlurShaderProvider shaderProvider;
 
     private final boolean hasDepth;
     private boolean depthTestingToScene;
@@ -90,24 +91,6 @@ public class GaussianBlur implements Disposable {
      *                            rotation can be done quickly without a pause.
      */
     public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget) {
-        this(initialAndMaxRadius, hasDepth, keepInverseTarget, new GaussianBlurShaderProvider());
-    }
-
-    /**
-     * @param initialAndMaxRadius The maximum blur radius this instance can support. The initial
-     *                            radius is set to this value. The actual maximum blur radius will be rounded
-     *                            up to the nearest even integer due to internal workings. NOTE:
-     *                            currently the maximum is always 8. A later version of the class
-     *                            may support lower or higher values.
-     * @param hasDepth            Whether the scene being drawn uses a depth buffer.
-     * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
-     *                            rotation can be done quickly without a pause.
-     * @param shaderProvider      Creates the shader used internally by GaussianBlur. If there are multiple
-     *                            GaussianBlurs in an application, passing a single instance to each can
-     *                            avoid redundant ShaderPrograms from being compiled.
-     */
-    public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget,
-                         GaussianBlurShaderProvider shaderProvider) {
         if (initialAndMaxRadius < 0 || initialAndMaxRadius > MAX_RADIUS) {
             throw new GdxRuntimeException(
                     "Radius must be between 0 and " + MAX_RADIUS + " inclusive.");
@@ -117,7 +100,7 @@ public class GaussianBlur implements Disposable {
         this.keepInverseTarget = keepInverseTarget;
         spriteBatch = new SpriteBatch(1);
 
-        // Enforcing minimum of 8 for the max radius because the shader doesn't support lower values.
+        // TODO Currently enforcing minimum of 8 for the max radius because the shader doesn't support lower values on Android.
         this.maxRadius = (int) Math.ceil(Math.max(8, initialAndMaxRadius));
         if (this.maxRadius % 2 != 0)
             this.maxRadius++; //round up to nearest even integer.
@@ -127,7 +110,7 @@ public class GaussianBlur implements Disposable {
 
         setTextureToSceneDepth(0.9999999f);//By default draw behind everything.
 
-        this.shaderProvider = shaderProvider;
+        shaderProvider = GaussianBlurShaderProvider.getInstance();
 
         if (initialAndMaxRadius > 0)
             blurPassShaderProgram = shaderProvider.obtainBlurPassShaderProgram(this.maxRadius);
@@ -311,11 +294,15 @@ public class GaussianBlur implements Disposable {
         fboToSceneProjectionMatrix.set(tempCam.combined);
     }
 
+    /**
+     * Prepare to draw the scene that will be blurred.
+     */
     public void begin () {
         if (currentBufferSet == null)
             throw new GdxRuntimeException("begin() called before resize().");
 
         currentBufferSet.initialTarget.begin();
+        wasDepthTestEnabled = Gdx.gl.glIsEnabled(GL20.GL_DEPTH_TEST);
     }
 
     private void doBlurPass (FrameBuffer fboInput, boolean vertical) {
@@ -337,14 +324,17 @@ public class GaussianBlur implements Disposable {
     }
 
     /**
-     * Disables depth testing. Must re-enable it if 3D API is expecting it in its RenderContext
+     * Completes the drawing of the scene and performs the blur.
      */
     public void end () {
         currentBufferSet.initialTarget.end();
 
         if (shouldBlur()) {
             spriteBatch.disableBlending();
-            Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+            if (wasDepthTestEnabled)
+                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+            else
+                Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
             spriteBatch.setProjectionMatrix(fboToSceneProjectionMatrix);
             currentBufferSet.pass1.begin();
             doBlurPass(currentBufferSet.initialTarget, false);
@@ -381,7 +371,9 @@ public class GaussianBlur implements Disposable {
         }
 
         if (depthTestingToScene) {
-            Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+            wasDepthTestEnabled = Gdx.gl.glIsEnabled(GL20.GL_DEPTH_TEST);
+            if (!wasDepthTestEnabled)
+                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         }
 
         spriteBatch.setColor(Color.WHITE);
@@ -401,8 +393,22 @@ public class GaussianBlur implements Disposable {
         spriteBatch.setShader(null);
 
         if (depthTestingToScene) {
-            Gdx.gl.glDisable(GL20.GL_DEPTH_TEST); //return to OpenGL default, as expected by other classes
+            if (wasDepthTestEnabled)
+                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+            else
+                Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         }
+    }
+
+    /**
+     * Returns the color texture containing the blurred scene. This is only valid for use after {@link #end()}}
+     * is called. This texture can be drawn stretched to fill the screen externally instead of using
+     * {@link #render()} or {@link #beginRender(ShaderProgram)}/{@link #finishRender()}, in which case
+     * of course blending and depth testing properties of GaussianBlur are not automatically applied.
+     * @return the color buffer texture of a FrameBuffer, containing the blurred scene.
+     */
+    public Texture getTexture() {
+        return shouldBlur() ? currentBufferSet.pass2.getColorBufferTexture() : currentBufferSet.initialTarget.getColorBufferTexture();
     }
 
     /** @param depthTestingToScene Whether depth testing should be used when drawing the texture into the scene. */

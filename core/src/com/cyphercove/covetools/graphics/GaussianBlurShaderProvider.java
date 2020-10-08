@@ -16,19 +16,35 @@
 
 package com.cyphercove.covetools.graphics;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectMap;
 
 /**
- * Provides shaders for {@linkplain GaussianBlur}. A single instance can be used for multiple
- * GaussianBlur objects to avoid compiling duplicate shaders.
+ * Provides shaders for {@linkplain GaussianBlur}. A single instance is used for
+ * GaussianBlur objects per Application to avoid compiling redundant duplicate shaders.
  * <p>
  * The provided shaders are reference counted each time {@link #obtainBlurPassShaderProgram(int)} is
  * called. Any object that obtains one should also clean it up by calling {@link #disposeShader(ShaderProgram)}.
  * This is done automatically by GaussianBlur when it is disposed.
  */
-public class GaussianBlurShaderProvider {
+class GaussianBlurShaderProvider {
+
+    private static final ObjectMap<Application, GaussianBlurShaderProvider> instances =
+            new ObjectMap<Application, GaussianBlurShaderProvider>(2);
+
+    private GaussianBlurShaderProvider() {}
+
+    static GaussianBlurShaderProvider getInstance() {
+        GaussianBlurShaderProvider instance = instances.get(Gdx.app);
+        if (instance == null) {
+            instance = new GaussianBlurShaderProvider();
+            instances.put(Gdx.app, instance);
+        }
+        return instance;
+    }
 
     private static class UniqueShader {
         ShaderProgram shaderProgram;
@@ -97,24 +113,29 @@ public class GaussianBlurShaderProvider {
                         "uniform float u_weightAtCenter;\n" +
                         "uniform vec4 u_weights;\n" +
                         "\n" +
+                        "vec4 getExpanded(vec2 coords) {\n" +
+                        "vec4 color = texture2D(u_texture, coords);\n" +
+                        "return color * color;\n" +
+                        "}" +
+                        "\n" +
                         "void main()\n" +
                         "{\n" +
-                        "vec4 blurSum = texture2D(u_texture, v_texCoords[0]) * u_weightAtCenter;\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[1]) * u_weights[0];\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[2]) * u_weights[0];\n" +
+                        "vec4 blurSum = getExpanded(v_texCoords[0]) * u_weightAtCenter;\n" +
+                        "blurSum += getExpanded(v_texCoords[1]) * u_weights[0];\n" +
+                        "blurSum += getExpanded(v_texCoords[2]) * u_weights[0];\n" +
                         "#if (RADIUS > 2)\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[3]) * u_weights[1];\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[4]) * u_weights[1];\n" +
+                        "blurSum += getExpanded(v_texCoords[3]) * u_weights[1];\n" +
+                        "blurSum += getExpanded(v_texCoords[4]) * u_weights[1];\n" +
                         "#endif\n" +
                         "#if (RADIUS > 4)\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[5]) * u_weights[2];\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[6]) * u_weights[2];\n" +
+                        "blurSum += getExpanded(v_texCoords[5]) * u_weights[2];\n" +
+                        "blurSum += getExpanded(v_texCoords[6]) * u_weights[2];\n" +
                         "#endif\n" +
                         "#if (RADIUS > 6)\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[7]) * u_weights[3];\n" +
-                        "blurSum += texture2D(u_texture, v_texCoords[8]) * u_weights[3];\n" +
+                        "blurSum += getExpanded(v_texCoords[7]) * u_weights[3];\n" +
+                        "blurSum += getExpanded(v_texCoords[8]) * u_weights[3];\n" +
                         "#endif\n" +
-                        "gl_FragColor = blurSum;\n" +
+                        "gl_FragColor = sqrt(blurSum);\n" +
                         "}";
 
         ShaderProgram shaderProgram = new ShaderProgram(vertexShaderSrc, fragmentShaderSrc);

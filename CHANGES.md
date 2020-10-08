@@ -1,6 +1,13 @@
 # 1.2.4
  - **[Breaking]** `AssignmentAssetManager.loadAssetFields()` now skips fields that have non-null values.
  - Added `ShaderProgramAsset` and `TextureAsset` for creating loading parameters within the annotation.
+ - **[Breaking]** `GaussianBlur` no longer disables depth testing on `end()` and `render()`, but rather
+ restores the prior depth testing state.
+ - Added `GaussianBlur.getTexture()` for drawing the blurred image externally.
+ - `GaussianBlurShaderProvider` is no longer public, and is now shared automatically among separate
+ `GaussianBlur` objects.
+ - **[Behavior change]** `GaussianBlur` now more properly performs the blur in approximately linear 
+ color space, which prevents the blurred image from being noticeably darker than the source image.
 
 # 1.2.3
  - Update to LibGDX 1.9.11
