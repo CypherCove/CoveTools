@@ -21,7 +21,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -34,14 +33,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cyphercove.covetools.examples.AssignmentAssetManagerTest;
-import com.cyphercove.covetools.examples.TweenTest;
 
 public class ExampleRunner extends Game {
 
     public static final Array<Class<? extends Example>> examples = new Array<Class<? extends Example>>();
     static {
     	examples.add(AssignmentAssetManagerTest.class);
-    	examples.add(TweenTest.class);
     }
 
     SpriteBatch spriteBatch;
