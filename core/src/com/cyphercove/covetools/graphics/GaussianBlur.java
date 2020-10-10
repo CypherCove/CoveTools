@@ -65,7 +65,7 @@ public class GaussianBlur implements Disposable {
     private ShaderProgram blurPassShaderProgram;
     private BufferSet currentBufferSet;
     private BufferSet heldBufferSet;
-    private boolean keepInverseTarget;
+    private boolean keepPreviousSize;
     private final float[] tmpArray = new float[MAX_RADIUS + 1];
     private float[] offsets;
     private float weightAtCenter;
@@ -87,17 +87,18 @@ public class GaussianBlur implements Disposable {
      *                            currently the maximum is always 8. A later version of the class
      *                            may support lower or higher values.
      * @param hasDepth            Whether the scene being drawn uses a depth buffer.
-     * @param keepInverseTarget   Whether, when resizing, to create two target frame buffers so a screen
-     *                            rotation can be done quickly without a pause.
+     * @param keepPreviousSize    Whether, when resizing, to hold the previous frame buffer in memory
+     *                            and reuse it when the following resize matches it. This can allow
+     *                            mobile screen rotation to be done quickly without a pause.
      */
-    public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepInverseTarget) {
+    public GaussianBlur (float initialAndMaxRadius, boolean hasDepth, boolean keepPreviousSize) {
         if (initialAndMaxRadius < 0 || initialAndMaxRadius > MAX_RADIUS) {
             throw new GdxRuntimeException(
                     "Radius must be between 0 and " + MAX_RADIUS + " inclusive.");
         }
 
         this.hasDepth = hasDepth;
-        this.keepInverseTarget = keepInverseTarget;
+        this.keepPreviousSize = keepPreviousSize;
         spriteBatch = new SpriteBatch(1);
 
         // TODO Currently enforcing minimum of 8 for the max radius because the shader doesn't support lower values on Android.
@@ -148,6 +149,9 @@ public class GaussianBlur implements Disposable {
      * @param textureHeight The height of the texture in pixels.
      */
     public void resize (int textureWidth, int textureHeight) {
+        if (textureWidth == 0 || textureHeight == 0)
+            return; // Lwjgl3 minification
+
         if (currentBufferSet != null && currentBufferSet.width == textureWidth && currentBufferSet.height == textureHeight)
             return;
 
@@ -163,7 +167,7 @@ public class GaussianBlur implements Disposable {
             heldBufferSet = null;
         }
 
-        if (keepInverseTarget) {
+        if (keepPreviousSize) {
             heldBufferSet = currentBufferSet;
         } else if (currentBufferSet != null){
             currentBufferSet.dispose();
