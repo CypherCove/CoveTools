@@ -1,4 +1,5 @@
 # 1.2.4
+ - Update Android target to SDK 30.
  - **[Breaking]** `AssignmentAssetManager.loadAssetFields()` now skips fields that have non-null values.
  - Added `ShaderProgramAsset` and `TextureAsset` for creating loading parameters within the annotation.
  - **[Breaking]** `GaussianBlur` no longer disables depth testing on `end()` and `render()`, but rather
@@ -8,6 +9,10 @@
  `GaussianBlur` objects.
  - **[Behavior change]** `GaussianBlur` now more properly performs the blur in approximately linear 
  color space, which prevents the blurred image from being noticeably darker than the source image.
+ - **[Behavior change]** `LiveWallpaperInfoActivity` also checks for matching package name when 
+ determining if the currently running wallpaper is a match for the project's package name. Previously
+ there were false positives if the service name matched but the package was different, which can 
+ occur when different flavors of a project are installed on the same device.
 
 # 1.2.3
  - Update to LibGDX 1.9.11
