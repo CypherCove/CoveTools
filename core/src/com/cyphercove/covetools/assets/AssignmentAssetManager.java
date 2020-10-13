@@ -381,15 +381,13 @@ public class AssignmentAssetManager extends AssetManager {
             parameter.fragmentFile = pathPrepend + asset.fragmentFile();
         }
         parameter.logOnCompileFailure = asset.logOnCompileFailure;
-        if (!asset.prependAllCode().equals("")) {
-            parameter.prependVertexCode = asset.prependAllCode();
-            parameter.prependFragmentCode = asset.prependAllCode();
+        String prependVertexCode = asset.prependAllCode() + asset.prependVertexCode();
+        if (!prependVertexCode.equals("")) {
+            parameter.prependVertexCode = prependVertexCode;
         }
-        if (!asset.prependVertexCode().equals("")) {
-            parameter.prependVertexCode = parameter.prependVertexCode + asset.prependVertexCode();
-        }
-        if (!asset.prependFragmentCode().equals("")) {
-            parameter.prependFragmentCode = parameter.prependFragmentCode + asset.prependFragmentCode();
+        String prependFragmentCode = asset.prependAllCode() + asset.prependFragmentCode();
+        if (!prependFragmentCode.equals("")) {
+            parameter.prependFragmentCode = prependFragmentCode;
         }
         return parameter;
     }

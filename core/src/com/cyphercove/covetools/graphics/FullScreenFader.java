@@ -21,9 +21,10 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Disposable;
 
-/**Draws a textured quad that fills the entire screen and fades out over a given time. This is intended for initially
+/**
+ * Draws a textured quad that fills the entire screen and fades out over a given time. This is intended for initially
  * fading in a scene as easily as possible--set it and forget it. Instantiate in create(), call {@link #render(float)} on
- * it at the bottom of your application's {@code render()}, and dispose of it ind {@code dispose()}.
+ * it at the bottom of your application's {@code render()}, and dispose of it in {@code dispose()}.
  * <p>
  * For an Android screen saver (formerly known as Daydream), this is useful for revealing the scene after it has loaded.
  * Screen savers are normally faded in, but a scene may take so long to load that the transition becomes harsh. To avoid this,
