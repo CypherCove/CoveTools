@@ -1,3 +1,5 @@
+#1.2.5
+
 # 1.2.4
  - Update Android target to SDK 30.
  - **[Breaking]** `AssignmentAssetManager.loadAssetFields()` now skips fields that have non-null values.
