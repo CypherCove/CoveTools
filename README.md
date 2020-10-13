@@ -15,9 +15,9 @@ Android module dependencies:
     
 To use with GWT, add this to the `.gwt.xml` file:
 
-    <inherits name="com.cyphercove.covetools" />
+    <inherits name="com.cyphercove.covetools"/>
     
-CoveTools is compatible with LibGDX 1.9.11. 
+[![libGDX](https://img.shields.io/badge/libgdx-1.9.11-red.svg)](http://www.libgdx.com/)
 
 See [CHANGES.md](Changes.md) for the change log, which lists breaking changes and libGDX version 
 increases.
