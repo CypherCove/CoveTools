@@ -27,11 +27,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-/** An activity that opens the live wallpaper chooser list, or a specific live wallpaper's preview on Jelly Bean and later.
+/**
+ * An activity that opens the live wallpaper chooser list, or a specific live wallpaper's preview on Jelly Bean and later.
  * Intended to be used as the application's {@code android.intent.category.INFO} Activity if the application does not have
  * a launcher Activity, which a typical situation for a primarily live wallpaper application. If the device does not
  * support live wallpapers, a Toast will inform the user. If on an API before Jelly Bean, a toast will instruct the user
  * to select the live wallpaper from the list. The messages for these toasts are provided by the abstract methods.
+ * <p>
+ * If the wallpaper is determined to be currently running, and if it has a settings activity, then
+ * that settings activity is opened. It is determined to be running by matching both the service
+ * class name and the package name.
+ * </p>
  */
 public abstract class LiveWallpaperInfoActivity extends Activity {
 
@@ -88,6 +94,7 @@ public abstract class LiveWallpaperInfoActivity extends Activity {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	private void openWallpaperPreview() {
 		String packageName = getPackageName();
+		@SuppressWarnings("ConstantConditions")
 		ComponentName componentName = new ComponentName(packageName,
                 getWallpaperServiceClass().getCanonicalName());
 		
@@ -101,7 +108,12 @@ public abstract class LiveWallpaperInfoActivity extends Activity {
 	private boolean isWallpaperRunning (){
 		WallpaperInfo info = WallpaperManager.getInstance(getBaseContext()).getWallpaperInfo();
 		if (info != null){
-			return info.getServiceName().equals(getWallpaperServiceClass().getName());
+			Log.e("running service name", info.getServiceName());
+			Log.e("running service package", info.getPackageName());
+			Log.e("this service name", getWallpaperServiceClass().getName());
+			Log.e("this service package", getApplication().getPackageName());
+			return info.getServiceName().equals(getWallpaperServiceClass().getName())
+					&& info.getPackageName().equals(getApplication().getPackageName());
 		}
 		return false;
 	}

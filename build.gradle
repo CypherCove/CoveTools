@@ -9,7 +9,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:4.0.2'
         classpath 'digital.wup:android-maven-publish:3.6.2'
     }
 }
@@ -56,7 +56,7 @@ project(":android") {
 
     dependencies {
         api project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+        compileOnly "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
@@ -70,7 +70,7 @@ project(":core") {
     apply plugin: "java-library"
 
     dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compileOnly "com.badlogicgames.gdx:gdx:$gdxVersion"
         implementation "net.objecthunter:exp4j:$exp4jVersion"
     }
 }
