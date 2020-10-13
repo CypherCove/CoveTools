@@ -120,6 +120,9 @@ public class AssignmentAssetManager extends AssetManager {
         String pathPrepend = "";
         if (assetContainer instanceof AssetContainer) {
             pathPrepend = ((AssetContainer) assetContainer).getAssetPathPrefix();
+            if (pathPrepend == null) {
+                pathPrepend = "";
+            }
         }
         Field[] fields = ClassReflection.getDeclaredFields(containerType);
         ObjectMap<Field, AssetDescriptor<?>> containerAssets = new ObjectMap<Field, AssetDescriptor<?>>();
