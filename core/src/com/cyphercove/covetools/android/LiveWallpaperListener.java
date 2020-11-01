@@ -56,4 +56,14 @@ public interface LiveWallpaperListener extends ApplicationListener {
      * Called when the application's shared preferences are modified.
      */
     void onSettingsChanged();
+
+    /**
+     * Called once before {@link #create()} to provide an AndroidApplicationDelegate which can optionally
+     * be cached and used to call Android-specific application methods. When used on other platforms,
+     * the methods of the delegate have no action.
+     * @param delegate The Android application delegate, which provides Android-specific application
+     *                 methods.
+     */
+    void setLiveWallpaperApplicationDelegate(LiveWallpaperApplicationDelegate delegate);
+
 }

@@ -1,5 +1,5 @@
 /* ******************************************************************************
- * Copyright 2020 See AUTHORS file.
+ * Copyright 2017 See AUTHORS file.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,17 @@
  ******************************************************************************/
 package com.cyphercove.covetools.android;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.graphics.Color;
 
 /**
- * Empty convenience implementation of {@link LiveWallpaperListener}.
+ * Allows access to Live Wallpaper-specific application methods from the core module.
  */
-public class LiveWallpaperAdapter extends ApplicationAdapter implements LiveWallpaperListener {
-    @Override
-    public void render(float xOffset, float yOffset, float xOffsetLooping, float xOffsetFake) {
-
-    }
-
-    @Override
-    public void onPreviewStateChange(boolean isPreview) {
-
-    }
-
-    @Override
-    public void onIconDropped(int x, int y) {
-
-    }
-
-    @Override
-    public void onSettingsChanged() {
-
-    }
-
-    @Override
-    public void setLiveWallpaperApplicationDelegate(LiveWallpaperApplicationDelegate delegate) {
-
-    }
+public interface LiveWallpaperApplicationDelegate {
+    /**
+     * Notify the wallpaper engine that the significant colors of the wallpaper have changed.
+     * @param primaryColor The most visually significant color.
+     * @param secondaryColor The second most visually significant color.
+     * @param tertiaryColor The third most visually significant color.
+     */
+    void notifyColorsChanged (Color primaryColor, Color secondaryColor, Color tertiaryColor);
 }

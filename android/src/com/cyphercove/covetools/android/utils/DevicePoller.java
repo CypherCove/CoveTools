@@ -39,10 +39,10 @@ public class DevicePoller {
 
     Context context;
 
-    public DevicePoller (Context context, float batteryLevelInterval, float chargeStateCountdown){
+    public DevicePoller (Context context, float batteryLevelInterval, float chargeStateInterval){
         this.context = context;
         this.batteryLevelInterval = batteryLevelInterval;
-        chargeStateInterval = chargeStateCountdown;
+        this.chargeStateInterval = chargeStateInterval;
     }
 
     public void update (float deltaTime){

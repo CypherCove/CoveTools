@@ -18,12 +18,14 @@ package com.cyphercove.covetools.android;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.backends.android.AndroidLiveWallpaper;
 import com.badlogic.gdx.backends.android.AndroidWallpaperListener;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 
 /**
@@ -36,8 +38,8 @@ import com.badlogic.gdx.math.MathUtils;
 public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpaperListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private LiveWallpaperListener liveWallpaper;
-    private SharedPreferences sharedPreferences;
+    private final LiveWallpaperListener liveWallpaper;
+    private final SharedPreferences sharedPreferences;
     private WallpaperEventListener wallpaperEventListener;
     private volatile boolean needSettingsUpdate;
 
@@ -46,7 +48,7 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
     private float yOffset;
     private float xOffsetFake = 0.5f;
     private float xOffsetFakeTarget = 0.5f;
-    private static final float DIP_TO_XOFFSET_FAKE_RATIO = 750f;
+    private static final float DIP_TO_X_OFFSET_FAKE_RATIO = 750f;
     private float swipeXStart;
 
     // Screen tapping
@@ -60,13 +62,11 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
     /**
      * Pixels per DIP unit.
      */
-    private float density;
+    private final float density;
 
-    //Homescreen looping params
+    // Home screen looping params
     protected float xOffsetSmooth, xOffsetLooping;
-    private float offsetDelta;
     private float previousOffset = 0.5f;
-    private float offsetVelocity = 0;
     private float offsetMaxVelocity = 1.5f; //per second
     private float offsetMinVelocity = .4f; //per second
     private static final float DELTA_OFFSET_MIN_LOOPING = 0.9f;
@@ -149,8 +149,8 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
     private void updateSpecialXOffsets() {
 
         //Handle xOffsetFake
-        offsetDelta = xOffsetFakeTarget - xOffsetFake;
-        offsetVelocity = offsetMaxVelocity * MathUtils.sin(offsetDelta * MathUtils.PI);
+        float offsetDelta = xOffsetFakeTarget - xOffsetFake;
+        float offsetVelocity = offsetMaxVelocity * MathUtils.sin(offsetDelta * MathUtils.PI);
         if (offsetDelta < 0) { // moving left
             offsetVelocity -= offsetMinVelocity;
         } else if (offsetDelta > 0) { // moving right
@@ -165,7 +165,7 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
 
         //Handle xOffsetSmooth
         offsetDelta = xOffset - xOffsetSmooth;
-        offsetVelocity = offsetMaxVelocity*MathUtils.sin(offsetDelta*MathUtils.PI);
+        offsetVelocity = offsetMaxVelocity*MathUtils.sin(offsetDelta *MathUtils.PI);
         if (offsetDelta < 0){ // moving left
             offsetVelocity -= offsetMinVelocity;
         } else if (offsetDelta > 0){ // moving right
@@ -231,6 +231,15 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
 
     @Override
     public void create() {
+        liveWallpaper.setLiveWallpaperApplicationDelegate(new LiveWallpaperApplicationDelegate() {
+            @Override
+            public void notifyColorsChanged(Color primaryColor, Color secondaryColor, Color tertiaryColor) {
+                Application app = Gdx.app;
+                if (app instanceof AndroidLiveWallpaper) {
+                    ((AndroidLiveWallpaper)app).notifyColorsChanged(primaryColor, secondaryColor, tertiaryColor);
+                }
+            }
+        });
         liveWallpaper.create();
         if (wallpaperEventListener != null) {
             wallpaperEventListener.onPostCreate(liveWallpaper);
@@ -262,7 +271,7 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
         if (input.isTouched(0) && !input.isTouched(1)) { //only one finger down and swiping
             //Measure swipe distance since last frame and apply. Then reset for next frame.
             float swipeDelta = swipeXStart - input.getX();
-            xOffsetFakeTarget += (swipeDelta / density) / DIP_TO_XOFFSET_FAKE_RATIO;
+            xOffsetFakeTarget += (swipeDelta / density) / DIP_TO_X_OFFSET_FAKE_RATIO;
             if (xOffsetFakeTarget < 0)
                 xOffsetFakeTarget = 0;
             else if (xOffsetFakeTarget > 1)
@@ -313,6 +322,22 @@ public class LiveWallpaperWrapper implements ApplicationListener, AndroidWallpap
                 tapCount = 0;
             }
         }
+    }
+
+    /**
+     * The maximum time between taps allowed for them to still be considered a multi-tap.
+     * @return the time in seconds
+     */
+    public float getMultiTapMaxInterval() {
+        return multiTapMaxInterval;
+    }
+
+    /**
+     * Sets the maximum time between taps allowed for them to still be considered a multi-tap.
+     * @param multiTapMaxInterval The time in seconds.
+     */
+    public void setMultiTapMaxInterval(float multiTapMaxInterval) {
+        this.multiTapMaxInterval = multiTapMaxInterval;
     }
 }
 

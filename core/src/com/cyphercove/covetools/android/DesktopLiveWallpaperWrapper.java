@@ -17,6 +17,7 @@ package com.cyphercove.covetools.android;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 
 /**
@@ -47,6 +48,12 @@ public class DesktopLiveWallpaperWrapper implements ApplicationListener {
 
     @Override
     public void create() {
+        liveWallpaper.setLiveWallpaperApplicationDelegate(new LiveWallpaperApplicationDelegate() {
+            @Override
+            public void notifyColorsChanged(Color primaryColor, Color secondaryColor, Color tertiaryColor) {
+
+            }
+        });
         liveWallpaper.create();
     }
 
