@@ -1,3 +1,5 @@
+#1.2.6
+
 #1.2.5
  - Update to libGDX 1.9.12.
  - **[Breaking]** Added `LiveWallpaperListener.setLiveWallpaperApplicationDelegate()`.
