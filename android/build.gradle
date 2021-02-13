@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.library'
-    id 'digital.wup.android-maven-publish'
 }
 android {
     compileSdkVersion 30
@@ -42,10 +41,13 @@ android {
         archiveClassifier = 'javadoc'
     }
 
+}
+
+afterEvaluate {
     publishing {
         publications {
             mavenAar(MavenPublication) {
-                from components.android
+                from components.release
                 artifactId = 'covetools-android'
                 artifact sourcesJar
                 artifact javadocJar

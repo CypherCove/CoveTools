@@ -1,3 +1,5 @@
+#1.2.7
+
 #1.2.6
  - Update to libGDX 1.9.14.
  - Added ResolutionCycle

@@ -5,21 +5,20 @@ buildscript {
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        jcenter()
         google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath 'digital.wup:android-maven-publish:3.6.2'
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
+    apply plugin: "maven-publish"
 
     group = 'com.cyphercove.covetools'
-    version = '1.2.6'
+    version = '1.2.7-SNAPSHOT'
 
     ext {
         appName = "CoveTools"
@@ -50,7 +49,6 @@ project(":example") {
 
 project(":android") {
     apply plugin: 'com.android.library'
-    apply plugin: 'digital.wup.android-maven-publish'
 
     configurations { natives }
 
