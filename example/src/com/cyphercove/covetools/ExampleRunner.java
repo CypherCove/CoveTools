@@ -66,8 +66,8 @@ public class ExampleRunner extends Game {
         selectBox.setItems(examples);
         selectBox.addListener(new InputListener(){
             @Override
-            public boolean scrolled (InputEvent event, float x, float y, int amount) {
-                selectBox.setSelectedIndex((selectBox.getSelectedIndex() + Integer.signum(amount) + examples.size) % examples.size);
+            public boolean scrolled (InputEvent event, float x, float y, float amountX, float amountY) {
+                selectBox.setSelectedIndex((selectBox.getSelectedIndex() + Integer.signum((int)amountY) + examples.size) % examples.size);
                 return true;
             }
         });

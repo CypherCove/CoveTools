@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "com.jfrog.bintray" version "1.8.4"
 }
 
 sourceCompatibility = 1.7
@@ -48,23 +47,6 @@ publishing {
             }
         }
     }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    pkg {
-        repo = 'maven'
-        name = 'CoveTools'
-        userOrg = 'cyphercove'
-        version {
-            name = rootProject.getVersion()
-            released  = new Date()
-        }
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/cyphercove/CoveTools/'
-    }
-    publications = ['mavenJava']
 }
 
 javadoc {
