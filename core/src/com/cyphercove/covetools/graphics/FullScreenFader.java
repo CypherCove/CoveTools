@@ -37,13 +37,13 @@ import com.badlogic.gdx.utils.Disposable;
  * */
 public class FullScreenFader implements Disposable{
 
-    private FullScreenQuad quad;
+    private final FullScreenQuad quad;
     private ShaderProgram shader;
 
     int u_color;
 
     private float delay;
-    private float fadeTime;
+    private final float fadeTime;
     private float elapsed;
 
     private final Color color = new Color(0, 0, 0, 1f);

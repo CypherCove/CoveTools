@@ -2,7 +2,7 @@ plugins {
     id 'com.android.library'
 }
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -16,14 +16,19 @@ android {
 
     }
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 30
+        minSdkVersion 17
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
     }
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 
     task sourcesJar(type: Jar) {
         from android.sourceSets.main.java.srcDirs

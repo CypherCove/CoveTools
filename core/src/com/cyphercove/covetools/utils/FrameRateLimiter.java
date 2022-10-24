@@ -27,7 +27,7 @@ public class FrameRateLimiter {
             long deltaMillis = System.currentTimeMillis() - lastTime;
             if (deltaMillis < deltaMillisMin){
                 try {Thread.sleep(deltaMillisMin - deltaMillis);}
-                catch (InterruptedException e) {}
+                catch (InterruptedException ignored) {}
             }
         }
 

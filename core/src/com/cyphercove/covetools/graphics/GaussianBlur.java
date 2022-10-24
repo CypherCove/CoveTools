@@ -67,9 +67,9 @@ public class GaussianBlur implements Disposable {
     private BufferSet heldBufferSet;
     private boolean keepPreviousSize;
     private final float[] tmpArray = new float[MAX_RADIUS + 1];
-    private float[] offsets;
+    private final float[] offsets;
     private float weightAtCenter;
-    private float[] weights;
+    private final float[] weights;
     private float sigma = -1;
     private boolean wasDepthTestEnabled;
 

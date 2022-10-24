@@ -147,7 +147,7 @@ public final class TextureAtlasCacher {
         }
         if (logUnfound && !missingNames.isEmpty()) {
             Gdx.app.log("TextureAtlasCacher",
-                    "Could not find regions matching the name(s): " + missingNames.toString());
+                    "Could not find regions matching the name(s): " + missingNames);
         }
     }
 

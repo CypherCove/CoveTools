@@ -33,7 +33,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 class GaussianBlurShaderProvider {
 
     private static final ObjectMap<Application, GaussianBlurShaderProvider> instances =
-            new ObjectMap<Application, GaussianBlurShaderProvider>(2);
+            new ObjectMap<>(2);
 
     private GaussianBlurShaderProvider() {}
 

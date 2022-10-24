@@ -4,6 +4,8 @@ plugins {
 }
 
 sourceCompatibility = 1.7
+java.targetCompatibility = JavaVersion.VERSION_1_7
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]

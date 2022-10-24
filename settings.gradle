@@ -1,1 +1,9 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    }
+}
 include 'example', 'android', 'core'

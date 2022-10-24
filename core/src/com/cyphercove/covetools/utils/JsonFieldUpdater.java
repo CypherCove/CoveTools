@@ -60,8 +60,8 @@ public class JsonFieldUpdater {
     private static final String TAG = JsonFieldUpdater.class.getName();
 
     private boolean throwErrors;
-    private Json json;
-    private ObjectMap<Class<?>, OrderedMap<String, Field>> staticFields = new ObjectMap<Class<?>, OrderedMap<String, Field>>();
+    private final Json json;
+    private final ObjectMap<Class<?>, OrderedMap<String, Field>> staticFields = new ObjectMap<>();
 
     public JsonFieldUpdater() {
         this(new Json());
@@ -92,7 +92,7 @@ public class JsonFieldUpdater {
                 final String expression = json.readValue("expression", String.class, (String) null, jsonData);
                 if (expression != null) {
                     return new Interpolation() {
-                        Expression e = new ExpressionBuilder(expression).variables("a").build();
+                        final Expression e = new ExpressionBuilder(expression).variables("a").build();
 
                         public float apply(float a) {
                             e.setVariable("a", a);
@@ -133,7 +133,7 @@ public class JsonFieldUpdater {
      *                 If a given object is a class, static fields will be written instead of object fields.
      */
     public void readFieldsToObjects(String jsonText, Object... objects) {
-        ObjectMap<String, Class> tagsToClasses = new ObjectMap<String, Class>(objects.length);
+        ObjectMap<String, Class> tagsToClasses = new ObjectMap<>(objects.length);
         for (Object object : objects) {
             Class<?> type = object instanceof Class ? (Class<?>) object : object.getClass();
             tagsToClasses.put(type.getSimpleName(), type);
@@ -181,9 +181,7 @@ public class JsonFieldUpdater {
             if (type == null) {
                 try {
                     type = ClassReflection.forName(className);
-                } catch (ReflectionException ex) {
-                    type = null;
-                }
+                } catch (ReflectionException ignored) {}
             }
             return type;
         }

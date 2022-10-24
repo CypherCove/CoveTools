@@ -1,4 +1,11 @@
 #1.2.7
+ - Update to libGDX 1.11.0
+ - Update to Android SDK 33 and increase minSdkVersion to 17
+ - Add Kotlin to Android module.
+ - **[Breaking]** Revised LiveWallpaperInfoActivity behavior to handle the new Android SDK 33 live wallpaper picker and to 
+handle explicitly setting the settings Activity. The resources for your toast messages should be
+changed to reflect the new behavior. As of SDK 33, it is no longer possible to reliably detect if
+live wallpapers are supported by finding the live wallpaper chooser.
 
 #1.2.6
  - Update to libGDX 1.9.14.

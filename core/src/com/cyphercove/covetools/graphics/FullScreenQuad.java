@@ -32,7 +32,7 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class FullScreenQuad implements Disposable {
 
-    private Mesh mesh;
+    private final Mesh mesh;
     private boolean blendingEnabled = false;
     private int blendSrcFunc = GL20.GL_SRC_ALPHA;
     private int blendDstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
