@@ -1,3 +1,6 @@
+#1.2.8
+ - Add optional onboarding screen to LiveWallpaperInfoActivity
+
 #1.2.7
  - Update to libGDX 1.11.0
  - Update to Android SDK 33 and increase minSdkVersion to 17
