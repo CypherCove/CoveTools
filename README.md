@@ -1,8 +1,8 @@
 # CoveTools
 This is a set of utilities I use with LibGDX.
     
-[![JitPack](https://img.shields.io/badge/jitpack-1.2.6-blue.svg)](https://jitpack.io/#CypherCove/CoveTools)
-[![libGDX](https://img.shields.io/badge/libgdx-1.9.14-red.svg)](http://www.libgdx.com/)
+[![JitPack](https://img.shields.io/badge/jitpack-1.2.9-blue.svg)](https://jitpack.io/#CypherCove/CoveTools)
+[![libGDX](https://img.shields.io/badge/libgdx-1.11.0-red.svg)](http://www.libgdx.com/)
 
 ## Project Dependency
 As of 1.2.6, CoveTools is available via [JitPack](https://jitpack.io/#CypherCove/CoveTools). Versions
