@@ -1,3 +1,6 @@
+#1.2.9
+ - Fix LiveWallpaperInfoActivity failing to open wallpaper preview.
+
 #1.2.8
  - Add optional onboarding screen to LiveWallpaperInfoActivity
 

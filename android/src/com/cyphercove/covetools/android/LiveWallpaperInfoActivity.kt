@@ -168,14 +168,19 @@ abstract class LiveWallpaperInfoActivity : Activity() {
      * @return Whether the setter was found and opened.
      */
     @SuppressLint("QueryPermissionsNeeded")
-    protected open fun tryOpenWallpaperSetter(): Boolean {
+    protected open fun tryOpenWallpaperSetter(previewOnly: Boolean = false): Boolean {
         for ((intent, isChooser) in potentialLiveWallpaperSetters) {
-            if (intent.resolveActivity(packageManager) != null) {
+            try {
+                if (previewOnly && isChooser) {
+                    continue
+                }
+                startActivity(intent)
                 if (isChooser) {
                     showLongToast(wallpaperChooserToastStringResource)
                 }
-                startActivity(intent)
                 return true
+            } catch (e: Exception) {
+                continue
             }
         }
         return false
@@ -245,9 +250,7 @@ abstract class LiveWallpaperInfoActivity : Activity() {
     /** Call only after we have been unable to detect this wallpaper as running. */
     @SuppressLint("QueryPermissionsNeeded")
     private fun handleOnboardingBackupMode() {
-        val previewIntent = wallpaperPreviewIntent
-        if (previewIntent.resolveActivity(packageManager) != null) {
-            startActivity(previewIntent)
+        if (tryOpenWallpaperSetter(true)) {
             finish()
             return
         }
