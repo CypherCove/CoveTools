@@ -1,3 +1,6 @@
+#1.2.10
+ - Update Android target to SDK 33.
+
 #1.2.9
  - Fix LiveWallpaperInfoActivity failing to open wallpaper preview.
 

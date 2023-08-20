@@ -1,8 +1,22 @@
 plugins {
     id 'com.android.library'
+    id 'signing'
 }
 android {
-    compileSdkVersion 33
+    namespace = "com.cyphercove.covetools"
+    compileSdk 33
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildFeatures {
+        buildConfig = false
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -15,12 +29,6 @@ android {
         }
 
     }
-    defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 33
-        versionCode 1
-        versionName "1.0"
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -30,53 +38,56 @@ android {
         jvmTarget = "1.8"
     }
 
-    task sourcesJar(type: Jar) {
-        from android.sourceSets.main.java.srcDirs
-        archiveClassifier = 'sources'
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
-
-    task javadoc(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-        failOnError = false
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        from javadoc.destinationDir
-        archiveClassifier = 'javadoc'
-    }
-
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            mavenAar(MavenPublication) {
-                from components.release
-                artifactId = 'covetools-android'
-                artifact sourcesJar
-                artifact javadocJar
-                pom {
-                    name = 'CoveTools'
-                    description = 'Various tools for use with LibGDX.'
-                    url = 'https://github.com/CypherCove/CoveTools'
-                    licenses {
-                        license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
+publishing {
+    publications {
+        release(MavenPublication) {
+            artifactId = 'covetools-android'
+            afterEvaluate {
+                from(components["release"])
+            }
+            pom {
+                name = 'CoveTools'
+                description = 'Various tools for use with LibGDX.'
+                url = 'https://github.com/CypherCove/CoveTools'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
-                    organization {
-                        name = 'Cypher Cove'
-                        url = 'www.cyphercove.com'
-                    }
-                    scm {
-                        connection = 'scm:git:git@github.com:cyphercove/covetools.git'
-                        developerConnection = 'scm:git:git@cyphercove/covetools.git'
-                        url = 'https://github.com/cyphercove/CoveTools/'
-                    }
+                }
+                organization {
+                    name = 'Cypher Cove'
+                    url = 'www.cyphercove.com'
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:cyphercove/covetools.git'
+                    developerConnection = 'scm:git:git@cyphercove/covetools.git'
+                    url = 'https://github.com/cyphercove/CoveTools/'
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv("SONATYPE_USERNAME")
+                password = System.getenv("SONATYPE_PASSWORD")
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.release
 }
