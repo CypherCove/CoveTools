@@ -23,7 +23,7 @@ allprojects {
     apply plugin: "maven-publish"
 
     group = 'com.cyphercove.covetools'
-    version = '1.2.10'
+    version = '1.2.11-SNAPSHOT'
 
     ext {
         appName = "CoveTools"
