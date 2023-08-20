@@ -1,22 +1,20 @@
 # CoveTools
 This is a set of utilities I use with LibGDX.
-    
-[![JitPack](https://img.shields.io/badge/jitpack-1.2.9-blue.svg)](https://jitpack.io/#CypherCove/CoveTools)
+
+![Maven Central](https://img.shields.io/maven-central/v/com.cyphercove.covetools/covetools)
 [![libGDX](https://img.shields.io/badge/libgdx-1.11.0-red.svg)](http://www.libgdx.com/)
 
 ## Project Dependency
-As of 1.2.6, CoveTools is available via [JitPack](https://jitpack.io/#CypherCove/CoveTools). Versions
-prior to 1.2.6 were on JCenter, but are not compatible with JitPack. If you need one of these versions,
-please open an issue and I will create a branch for it.
+As of 1.2.10, CoveTools is available on Maven Central.
 
 You can add it to your LibGDX project's base `build.gradle` under the `core` module's dependencies:
 
-    implementation "com.github.cyphercove:covetools:1.2.9
+    implementation "com.cyphercove.covetools:covetools:1.2.10
     
 If you are using the live wallpaper features, you also need to add **covetools-android** to your 
 Android module dependencies:
 
-    implementation "com.github.cyphercove:covetools-android:1.2.9"
+    implementation "com.cyphercove.covetools:covetools-android:1.2.10"
     
 To use with GWT, add this to the `.gwt.xml` file:
 
@@ -24,7 +22,8 @@ To use with GWT, add this to the `.gwt.xml` file:
 
 Your libGDX version should be at least as high as the one noted in the badge above.
 
-See [CHANGES.md](Changes.md) for the change log. There may be breaking changes between releases.
+
+See [CHANGES.md](CHANGES.md) for the change log. There may be breaking changes between releases.
 
 ## AssignmentAssetManager
 

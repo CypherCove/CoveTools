@@ -42,6 +42,13 @@ publishing {
                     name = 'Cypher Cove'
                     url = 'www.cyphercove.com'
                 }
+                developers {
+                    developer {
+                        id = 'cypher-cove'
+                        name = 'Cypher Cove'
+                        email = 'contact@cyphercove.com'
+                    }
+                }
                 scm {
                     connection = 'scm:git:git@github.com:cyphercove/covetools.git'
                     developerConnection = 'scm:git:git@cyphercove/covetools.git'
@@ -54,7 +61,7 @@ publishing {
     repositories {
         maven {
             name = "OSSRH"
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
                 username = System.getenv("SONATYPE_USERNAME")
                 password = System.getenv("SONATYPE_PASSWORD")
