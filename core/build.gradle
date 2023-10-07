@@ -4,30 +4,22 @@ plugins {
     id 'signing'
 }
 
-sourceCompatibility = 1.7
-java.targetCompatibility = JavaVersion.VERSION_1_7
+java {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+    withJavadocJar()
+    withSourcesJar()
+}
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier = 'sources'
-}
-
-task javadocJar(type: Jar) {
-    from javadoc
-    archiveClassifier = 'javadoc'
-}
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId = 'covetools'
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             pom {
                 name = 'CoveTools'
                 description = 'Various tools for use with LibGDX.'

@@ -1,3 +1,7 @@
+#1.2.11
+ - Update to libGDX 1.12.0
+ - Update Android target to SDK 34.
+
 #1.2.10
  - Update Android target to SDK 33.
 
