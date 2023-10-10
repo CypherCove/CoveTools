@@ -10,7 +10,7 @@ allprojects {
     apply plugin: "maven-publish"
 
     group = 'com.cyphercove.covetools'
-    version = '1.2.11'
+    version = '1.2.12-SNAPSHOT'
 
     ext {
         appName = "CoveTools"
@@ -52,6 +52,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+        implementation "androidx.annotation:annotation:1.7.0"
     }
 }
 

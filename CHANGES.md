@@ -1,3 +1,7 @@
+#1.2.12-SNAPSHOT
+ - Add SafeDaydream class.
+ - Add ContextUser and SharedPreferences get operator functions.
+ - 
 #1.2.11
  - Update to libGDX 1.12.0
  - Update Android target to SDK 34.
