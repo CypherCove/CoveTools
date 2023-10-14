@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'signing'
+    id 'org.jetbrains.kotlin.android'
 }
 android {
     namespace = "com.cyphercove.covetools"
