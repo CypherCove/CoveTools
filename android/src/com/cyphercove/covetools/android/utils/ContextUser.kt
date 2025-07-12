@@ -23,8 +23,8 @@ import com.cyphercove.covetools.android.preferences.get
 /**
  * A type that holds a reference to an Android [Context].
  *
- * **Planned obsolescence.** When Kotlin context receivers becomes a stable feature, this will be
- * converted to an interface, and the member functions will be moved into other packages.
+ * **Planned breaking change.** When Kotlin context parameters become a stable feature, this will be
+ * converted to an interface, and the member functions will be moved to top level.
  *
  * Currently holds convenience functions for loading SharedPreference values using a key defined by
  * a String resource.

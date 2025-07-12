@@ -4,7 +4,7 @@ This is a set of utilities I use with LibGDX.
 <a href="https://central.sonatype.com/artifact/com.cyphercove.covetools/covetools" alt="Maven Central">
     <img src="https://img.shields.io/maven-central/v/com.cyphercove.covetools/covetools?color=6d7ac5" /></a>
 <a href="https://www.libgdx.com" alt="libGDX">
-    <img src="https://img.shields.io/badge/libgdx-1.12.0-e74a45" /></a>
+    <img src="https://img.shields.io/badge/libgdx-1.13.1-e74a45" /></a>
 
 ## Project Dependency
 As of 1.2.10, CoveTools is available on Maven Central.

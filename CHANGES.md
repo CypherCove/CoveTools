@@ -1,7 +1,9 @@
 #1.2.12-SNAPSHOT
+ - Update to libGDX 1.13.1
+ - Now building with Java 11.
  - Add SafeDaydream class.
  - Add ContextUser and SharedPreferences get operator functions.
- - Update Kotlin version in -android module to 1.9.10
+ - Update Kotlin version in -android module to 2.2.0
 
 #1.2.11
  - Update to libGDX 1.12.0

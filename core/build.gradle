@@ -5,8 +5,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 11
+    targetCompatibility = 11
     withJavadocJar()
     withSourcesJar()
 }
@@ -52,8 +52,8 @@ publishing {
 
     repositories {
         maven {
-            name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            name = 'ossrh-staging-api'
+            url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
             credentials {
                 username = System.getenv("SONATYPE_USERNAME")
                 password = System.getenv("SONATYPE_PASSWORD")

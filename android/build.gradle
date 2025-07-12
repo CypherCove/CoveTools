@@ -5,11 +5,11 @@ plugins {
 }
 android {
     namespace = "com.cyphercove.covetools"
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 34
+        minSdkVersion 21
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
     }
@@ -32,11 +32,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     publishing {
@@ -86,8 +86,8 @@ publishing {
 
     repositories {
         maven {
-            name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            name = 'ossrh-staging-api'
+            url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
             credentials {
                 username = System.getenv("SONATYPE_USERNAME")
                 password = System.getenv("SONATYPE_PASSWORD")
