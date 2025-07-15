@@ -1,73 +1,54 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'signing'
+    id 'com.vanniktech.maven.publish'
 }
 
 java {
     sourceCompatibility = 11
     targetCompatibility = 11
-    withJavadocJar()
-    withSourcesJar()
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'covetools'
-            from components.java
-            pom {
-                name = 'CoveTools'
-                description = 'Various tools for use with LibGDX.'
-                url = 'https://github.com/CypherCove/CoveTools'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                organization {
-                    name = 'Cypher Cove'
-                    url = 'www.cyphercove.com'
-                }
-                developers {
-                    developer {
-                        id = 'cypher-cove'
-                        name = 'Cypher Cove'
-                        email = 'contact@cyphercove.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git@github.com:cyphercove/covetools.git'
-                    developerConnection = 'scm:git:git@cyphercove/covetools.git'
-                    url = 'https://github.com/cyphercove/CoveTools/'
-                }
+javadoc.options.addBooleanOption('html5', true)
+
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+
+mavenPublishing {
+    coordinates(group, 'covetools', version)
+
+    pom {
+        name = 'CoveTools'
+        description = 'Various tools for use with LibGDX.'
+        url = 'https://github.com/CypherCove/CoveTools'
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
             }
+        }
+        organization {
+            name = 'Cypher Cove'
+            url = 'www.cyphercove.com'
+        }
+        developers {
+            developer {
+                id = 'cypher-cove'
+                name = 'Cypher Cove'
+                email = 'contact@cyphercove.com'
+            }
+        }
+        scm {
+            connection = 'scm:git:git@github.com:cyphercove/covetools.git'
+            developerConnection = 'scm:git:git@cyphercove/covetools.git'
+            url = 'https://github.com/cyphercove/CoveTools/'
         }
     }
 
-    repositories {
-        maven {
-            name = 'ossrh-staging-api'
-            url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-            credentials {
-                username = System.getenv("SONATYPE_USERNAME")
-                password = System.getenv("SONATYPE_PASSWORD")
-            }
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
+    configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
+    // mavenCentralUsername and mavenCentralPassword should be set in ~/.gradle/gradle.properties
 }
