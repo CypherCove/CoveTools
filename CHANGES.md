@@ -1,4 +1,4 @@
-#1.2.12-SNAPSHOT
+#1.2.12
  - Update to libGDX 1.13.1
  - Now building with Java 11.
  - Add SafeDaydream class.

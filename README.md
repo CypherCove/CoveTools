@@ -11,12 +11,12 @@ As of 1.2.10, CoveTools is available on Maven Central.
 
 You can add it to your LibGDX project's base `build.gradle` under the `core` module's dependencies:
 
-    implementation "com.cyphercove.covetools:covetools:1.2.11"
+    implementation "com.cyphercove.covetools:covetools:1.2.12"
     
 If you are using the live wallpaper features, you also need to add **covetools-android** to your 
 Android module dependencies:
 
-    implementation "com.cyphercove.covetools:covetools-android:1.2.11"
+    implementation "com.cyphercove.covetools:covetools-android:1.2.12"
     
 To use with GWT, add this to the `.gwt.xml` file:
 
